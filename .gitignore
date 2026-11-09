@@ -1,0 +1,8 @@
+node_modules
+android
+ios
+web-build
+.expo
+.env
+.env.local
+.DS_Store

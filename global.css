@@ -1,0 +1,199 @@
+@import 'tailwindcss';
+@import 'uniwind';
+
+@layer theme {
+   :root {
+      /* --- TYPOGRAPHY SYSTEM --- */
+      --font-sans: 'System';
+      --font-display: 'System';
+
+      /* Font sizes with perfect 4/8 scale */
+      --text-xs: 0.75rem; /* 12px */
+      --text-sm: 0.875rem; /* 14px */
+      --text-base: 1rem; /* 16px */
+      --text-lg: 1.125rem; /* 18px */
+      --text-xl: 1.25rem; /* 20px */
+      --text-2xl: 1.5rem; /* 24px */
+      --text-3xl: 2rem; /* 32px */
+
+      /* Font weights */
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* --- RADIUS --- */
+      --radius-none: 0px;
+      --radius-sm: 0.5rem; /* 8px : Éléments compacts */
+      --radius-md: 0.75rem; /* 12px : Inputs et petits boutons */
+      --radius-lg: 1rem; /* 16px : Boutons principaux */
+      --radius-xl: 1.5rem; /* 24px : Cartes de restaurants */
+      --radius-2xl: 2rem; /* 32px : Modales */
+      --radius-3xl: 2.5rem; /* 40px : Bottom sheets */
+      --radius-full: 9999px; /* Avatars et boutons pilules */
+
+      /* --- SPACING (Grille 4px) --- */
+      --spacing-px: 1px;
+      --spacing-0: 0px;
+      --spacing-1: 0.25rem; /* 4px */
+      --spacing-2: 0.5rem; /* 8px */
+      --spacing-3: 0.75rem; /* 12px */
+      --spacing-4: 1rem; /* 16px : Standard mobile */
+      --spacing-5: 1.25rem; /* 20px */
+      --spacing-6: 1.5rem; /* 24px : Gutters */
+      --spacing-8: 2rem; /* 32px */
+      --spacing-10: 2.5rem; /* 40px */
+      --spacing-12: 3rem; /* 48px */
+      --spacing-16: 4rem; /* 64px */
+
+      /* --- ELEVATION (Ombres douces signature) --- */
+      --shadow-sm: 0 2px 8px oklch(0% 0 0 / 0.04);
+      --shadow-md: 0 8px 20px oklch(20% 0.04 262 / 0.08);
+      --shadow-lg: 0 15px 35px oklch(20% 0.04 262 / 0.12);
+      --shadow-xl: 0 25px 50px oklch(20% 0.04 262 / 0.18);
+
+      /* --- ANIMATIONS --- */
+      --ease-default: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --ease-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+      /* --- Z-INDEX LAYERS --- */
+      --z-dropdown: 1000;
+      --z-sticky: 1020;
+      --z-fixed: 1030;
+      --z-modal: 1040;
+      --z-popover: 1050;
+      --z-toast: 1060;
+   }
+
+   /* --- LIGHT MODE --- */
+   @variant light {
+      /* Backgrounds */
+      --color-background: oklch(98% 0.002 260);
+      --color-background-secondary: oklch(96% 0.003 260);
+      --color-card: oklch(100% 0 0);
+      --color-card-hover: oklch(97% 0.018 260);
+
+      /* Text */
+      --color-foreground: oklch(16% 0.005 260);
+      --color-foreground-secondary: oklch(42% 0.008 260);
+      --color-foreground-muted: oklch(60% 0.008 260);
+      --color-foreground-inverse: oklch(98% 0.002 260);
+
+      /* Borders */
+      --color-border: oklch(87% 0.006 260);
+      --color-border-subtle: oklch(93% 0.004 260);
+
+      /* Brand — Deep Purple (#5700B1) */
+      --color-primary: oklch(42% 0.227 296);
+      --color-primary-hover: oklch(50% 0.22 296);
+      --color-primary-soft: oklch(85% 0.1 296 / 0.3);
+
+      /* Accent — Gold (#C9960A) — scan CTA, highlights */
+      --color-accent: oklch(68% 0.155 75);
+      --color-accent-hover: oklch(62% 0.155 75);
+      --color-accent-soft: oklch(97% 0.045 90 / 0.3);
+
+      /* Semantic colors */
+      --color-danger: oklch(55% 0.215 25);
+      --color-danger-soft: oklch(92% 0.06 25 / 0.3);
+      --color-success: oklch(60% 0.155 148);
+      --color-success-soft: oklch(92% 0.06 148 / 0.3);
+      --color-warning: oklch(68% 0.155 72);
+      --color-warning-soft: oklch(92% 0.06 72 / 0.3);
+      --color-info: oklch(53% 0.135 260);
+      --color-info-soft: oklch(92% 0.04 260 / 0.3);
+
+      /* Rating — Gold stars */
+      --color-rating: oklch(83% 0.165 82);
+      --color-rating-inactive: oklch(87% 0.006 260);
+   }
+
+   /* --- DARK MODE --- */
+   @variant dark {
+      /* Backgrounds — Deep Navy (#0F1E40) */
+      --color-background: oklch(18% 0.07 262);
+      --color-background-secondary: oklch(22% 0.08 262);
+      --color-card: oklch(28% 0.095 262);
+      --color-card-hover: oklch(33% 0.1 262);
+
+      /* Text */
+      --color-foreground: oklch(98% 0.002 260);
+      --color-foreground-secondary: oklch(80% 0.065 260);
+      --color-foreground-muted: oklch(55% 0.04 260);
+      --color-foreground-inverse: oklch(18% 0.07 262);
+
+      /* Borders */
+      --color-border: oklch(38% 0.08 262);
+      --color-border-subtle: oklch(30% 0.075 262);
+
+      /* Brand — Lighter Purple — readable on dark bg */
+      --color-primary: oklch(65% 0.2 296);
+      --color-primary-hover: oklch(72% 0.18 296);
+      --color-primary-soft: oklch(35% 0.15 296 / 0.5);
+
+      /* Accent — Bright Gold (#F5BD2C) */
+      --color-accent: oklch(83% 0.165 82);
+      --color-accent-hover: oklch(78% 0.165 82);
+      --color-accent-soft: oklch(40% 0.1 82 / 0.3);
+
+      /* Semantic colors */
+      --color-danger: oklch(65% 0.22 25);
+      --color-danger-soft: oklch(30% 0.12 25 / 0.3);
+      --color-success: oklch(70% 0.16 148);
+      --color-success-soft: oklch(30% 0.1 148 / 0.3);
+      --color-warning: oklch(78% 0.155 72);
+      --color-warning-soft: oklch(35% 0.1 72 / 0.3);
+      --color-info: oklch(65% 0.135 260);
+      --color-info-soft: oklch(30% 0.09 260 / 0.3);
+
+      /* Rating — Gold stars */
+      --color-rating: oklch(83% 0.165 82);
+      --color-rating-inactive: oklch(35% 0.06 262);
+   }
+}
+
+/* Custom utilities using @utility (Tailwind CSS v4 way) */
+@utility card {
+   background-color: var(--color-card);
+   border-radius: var(--radius-xl);
+   padding: var(--spacing-4);
+   border-width: 1px;
+   border-color: var(--color-border-subtle);
+   box-shadow: var(--shadow-md);
+}
+
+@utility restaurant-card {
+   background-color: var(--color-card);
+   border-radius: var(--radius-xl);
+   overflow: hidden;
+   border-width: 1px;
+   border-color: var(--color-border-subtle);
+   box-shadow: var(--shadow-md);
+}
+
+@utility restaurant-card-image {
+   width: 100%;
+   height: 200px;
+   border-top-left-radius: var(--radius-xl);
+   border-top-right-radius: var(--radius-xl);
+}
+
+@utility btn {
+   padding: var(--spacing-3) var(--spacing-6);
+   border-radius: var(--radius-lg);
+   font-weight: var(--font-weight-semibold);
+   transition: all var(--ease-default);
+}
+
+@utility rating-star {
+   color: var(--color-rating);
+}
+
+@utility rating-star-inactive {
+   color: var(--color-rating-inactive);
+}
+
+@utility container {
+   padding-left: var(--spacing-4);
+   padding-right: var(--spacing-4);
+}

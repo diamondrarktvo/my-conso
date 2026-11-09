@@ -1,0 +1,46 @@
+{
+   "unknown": {
+      "title": "Erreur inattendue",
+      "message": "Une erreur inattendue est survenue. Notre équipe a été informée."
+   },
+   "screen": {
+      "not_found": {
+         "title": "Contenu introuvable",
+         "message": "Le contenu que vous recherchez n'existe pas ou a été supprimé."
+      },
+      "camera": {
+         "title": "Caméra non accessible",
+         "message": "Autorisez l'accès à la caméra dans les paramètres."
+      },
+      "location": {
+         "title": "Localisation désactivée",
+         "message": "Activez la localisation pour utiliser cette fonctionnalité."
+      },
+      "storage": {
+         "title": "Stockage insuffisant",
+         "message": "Libérez de l'espace de stockage pour continuer."
+      },
+      "unknown": {
+         "title": "Une erreur est survenue",
+         "message": "Une erreur inattendue s'est produite. Notre équipe a été notifiée."
+      }
+   },
+   "actions": {
+      "retry": "Réessayer",
+      "go_back": "Retour",
+      "go_home": "Accueil",
+      "contact": "Contacter le support",
+      "close": "Fermer",
+      "ok": "Ok",
+      "no_details": "Aucun détail technique disponible",
+      "help": "Aide",
+      "support": "Support"
+   },
+   "modal": {
+      "dev_panel_title": "DEV — Détails techniques",
+      "message_label": "Message",
+      "origin": "Origine",
+      "stack_trace": "Stack trace",
+      "dev_badge": "Mode développement"
+   }
+}

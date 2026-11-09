@@ -4,37 +4,48 @@
     "slug": "my-conso",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.myconso",
       "icon": {
-        "dark": "./assets/icon-dark.png",
-        "tinted": "./assets/icon-tinted.png"
+        "light": "./assets/images/icon.png",
+        "dark": "./assets/images/ios-dark.png",
+        "tinted": "./assets/images/ios-tinted.png"
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png",
+        "backgroundColor": "#F97316"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.myconso",
       "permissions": [
         "android.permission.ACCESS_NETWORK_STATE"
-      ]
+      ],
+      "icon": "./assets/images/icon.png"
     },
     "web": {
-      "favicon": "./assets/favicon.ico"
+      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 220,
+          "backgroundColor": "#F97316",
+          "dark": {
+            "image": "./assets/images/splash-icon-dark.png",
+            "backgroundColor": "#0F172A"
+          }
+        }
+      ]
     ]
   }
 }

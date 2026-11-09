@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#000000"/><stop offset="1" stop-color="#000000"/>
+</linearGradient></defs><rect width="1024" height="1024" fill="url(#g)"/>
+<g transform="translate(512 506) scale(0.92) translate(-512 -506)">
+  <line x1="85" y1="330" x2="170" y2="330" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity=".75"/><line x1="60" y1="400" x2="170" y2="400" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity=".75"/><line x1="85" y1="470" x2="170" y2="470" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" opacity=".75"/>
+  <g transform="translate(70 174) scale(1.3)">
+  <!-- roues -->
+  <circle cx="230" cy="300" r="65" fill="#FFFFFF" stroke="#000000" stroke-width="12"/>
+  <circle cx="230" cy="300" r="34" fill="#000000"/>
+  <circle cx="230" cy="300" r="10" fill="#FFFFFF"/>
+  <circle cx="520" cy="300" r="65" fill="#FFFFFF" stroke="#000000" stroke-width="12"/>
+  <circle cx="520" cy="300" r="34" fill="#000000"/>
+  <!-- fourche (partie visible sous le garde-boue) -->
+  <line x1="512" y1="215" x2="520" y2="300" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="520" cy="300" r="10" fill="#FFFFFF"/>
+  <!-- bloc moteur -->
+  <path d="M282 255 L350 255 L338 292 C330 300 300 302 290 292 Z" fill="#FFFFFF"/>
+  <!-- carrosserie arrière avec passage de roue -->
+  <path d="M100 205 C112 172 175 172 200 176 L345 184 C362 200 364 240 348 262
+           L302 262 C292 232 262 216 230 216 C196 216 166 236 158 262 L140 262
+           C114 250 96 228 100 205 Z" fill="#FFFFFF"/>
+  <!-- selle -->
+  <path d="M150 182 C160 156 205 154 245 157 L333 164 C350 167 354 180 345 190 L158 188 Z"
+        fill="#FFFFFF" stroke="#000000" stroke-width="9"/>
+  <!-- plancher -->
+  <rect x="320" y="248" width="135" height="22" rx="11" fill="#FFFFFF"/>
+  <!-- tablier avant -->
+  <path d="M408 270 L452 132 C460 106 480 92 506 92 L534 95 C556 99 563 118 555 140
+           L532 208 C514 226 490 240 478 256 L468 270 Z" fill="#FFFFFF"/>
+  <!-- garde-boue avant -->
+  <path d="M466 266 C484 230 556 226 580 258 L570 266 C548 242 494 244 478 270 Z"
+        fill="#FFFFFF"/>
+  <!-- guidon et rétroviseur -->
+  <path d="M506 94 L498 62 L452 52" fill="none" stroke="#FFFFFF" stroke-width="16"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="494" y1="60" x2="507" y2="30" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="511" cy="24" rx="17" ry="10" fill="#FFFFFF"/>
+  <!-- phare et feu arrière -->
+  <ellipse cx="536" cy="122" rx="11" ry="17" fill="#000000"
+           transform="rotate(18 536 122)"/>
+  <ellipse cx="108" cy="204" rx="9" ry="13" fill="#000000"/>
+</g>
+  <text x="512" y="842" text-anchor="middle" font-family="Inter" font-weight="900"
+        font-size="186" letter-spacing="10" fill="#FFFFFF">CONSO</text>
+</g>
+</svg>

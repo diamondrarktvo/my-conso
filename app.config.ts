@@ -7,9 +7,8 @@ const OWNER = "diamondrarktvo";
 const APP_NAME = "My Conso";
 const BUNDLE_IDENTIFIER = "com.myconso";
 const PACKAGE_NAME = "com.myconso";
-const ICON = "./assets/icon.png";
-const ADAPTIVE_ICON = "./assets/adaptive-icon.png";
-const SPLASH_IMAGE = "./assets/splash-icon.png";
+const ICON = "./assets/images/icon.png";
+const IMAGES = "./assets/images";
 
 const environment = process.env.EXPO_PUBLIC_APP_ENV || "development";
 
@@ -20,7 +19,6 @@ export const getDynamicAppConfig = (env: string) => {
       bundleIdentifier: BUNDLE_IDENTIFIER,
       packageName: PACKAGE_NAME,
       icon: ICON,
-      adaptiveIcon: ADAPTIVE_ICON,
     };
   }
   if (env === "preview") {
@@ -29,7 +27,6 @@ export const getDynamicAppConfig = (env: string) => {
       bundleIdentifier: `${BUNDLE_IDENTIFIER}.preview`,
       packageName: `${PACKAGE_NAME}.preview`,
       icon: ICON,
-      adaptiveIcon: ADAPTIVE_ICON,
     };
   }
   return {
@@ -37,12 +34,11 @@ export const getDynamicAppConfig = (env: string) => {
     bundleIdentifier: `${BUNDLE_IDENTIFIER}.development`,
     packageName: `${PACKAGE_NAME}.development`,
     icon: ICON,
-    adaptiveIcon: ADAPTIVE_ICON,
   };
 };
 
 export default ({ config }: { config: any }) => {
-  const { name, bundleIdentifier, packageName, icon, adaptiveIcon } =
+  const { name, bundleIdentifier, packageName, icon } =
     getDynamicAppConfig(environment);
 
   return {
@@ -54,7 +50,6 @@ export default ({ config }: { config: any }) => {
       orientation: "portrait",
       icon,
       userInterfaceStyle: "light",
-      splash: { image: SPLASH_IMAGE, resizeMode: "contain", backgroundColor: "#ffffff" },
       assetBundlePatterns: ["**/*"],
       ...(EAS_PROJECT_ID ? { extra: { eas: { projectId: EAS_PROJECT_ID } } } : {}),
       ...(OWNER ? { owner: OWNER } : {}),
@@ -62,19 +57,37 @@ export default ({ config }: { config: any }) => {
         supportsTablet: true,
         bundleIdentifier,
         icon: {
-          dark: "./assets/icon-dark.png",
-          tinted: "./assets/icon-tinted.png",
+          light: icon,
+          dark: `${IMAGES}/ios-dark.png`,
+          tinted: `${IMAGES}/ios-tinted.png`,
         },
       },
       android: {
-        adaptiveIcon: { foregroundImage: adaptiveIcon, backgroundColor: "#ffffff" },
+        icon,
+        adaptiveIcon: {
+          foregroundImage: `${IMAGES}/android-icon-foreground.png`,
+          backgroundImage: `${IMAGES}/android-icon-background.png`,
+          monochromeImage: `${IMAGES}/android-icon-monochrome.png`,
+          backgroundColor: "#F97316",
+        },
         predictiveBackGestureEnabled: false,
         package: packageName,
       },
       web: {
-        favicon: "./assets/favicon.ico",
+        favicon: `${IMAGES}/favicon.png`,
       },
-      plugins: ["expo-font"],
+      plugins: [
+        "expo-font",
+        [
+          "expo-splash-screen",
+          {
+            image: `${IMAGES}/splash-icon.png`,
+            imageWidth: 220,
+            backgroundColor: "#F97316",
+            dark: { image: `${IMAGES}/splash-icon-dark.png`, backgroundColor: "#0F172A" },
+          },
+        ],
+      ],
     },
   };
 };

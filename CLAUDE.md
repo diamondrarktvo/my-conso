@@ -23,7 +23,17 @@ npx expo install --check
 pnpm typecheck   # tsc --noEmit
 pnpm lint        # eslint .
 pnpm test        # jest (jest-expo); tests live in __tests__/ next to the code
+
+# Run a single test file / a single test by name
+pnpm test src/lib/__tests__/error-handler.test.ts
+pnpm test -t "name of the test"
+
+# Native dev builds (the app uses native modules like MMKV/Nitro, so Expo Go won't work)
+pnpm dev-client          # start Metro for a dev client
+pnpm ios / pnpm android  # expo run:* on a physical device
 ```
+
+CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs typecheck, lint and test with pnpm 10 / Node 22. Use `pnpm` (lockfile is `pnpm-lock.yaml`).
 
 ## Architecture
 
@@ -58,6 +68,18 @@ Uses **Uniwind** (Tailwind CSS v4 for React Native) via [global.css](global.css)
 ### Storage
 
 All persistence uses **MMKV** (not AsyncStorage). Single general-purpose cache instance.
+
+### i18n
+
+`i18next` + `react-i18next` ([src/i18n/i18n.ts](src/i18n/i18n.ts)), locales `fr` (default) and `en` under `src/i18n/locales/<lng>/{common,errors}.json`. The selected language is persisted in the MMKV cache (`CACHE_KEYS.LANGUAGE`) via a custom language detector, so i18n depends on `cache-provider`'s `cacheStorage`. When adding a string, add it to **both** languages.
+
+### Error handling
+
+[src/lib/error-handler.ts](src/lib/error-handler.ts) holds pure functions (`classifyError`, stack-trace parsing for Hermes/JSC; stack details only in dev). UI code should report errors through `ErrorProvider` (`showError`) rather than calling the classifier directly; user-facing messages come from the `errors` i18n namespace.
+
+### Environment
+
+Read env vars only through [src/lib/env.ts](src/lib/env.ts) (`ENV`), never `process.env` directly. Only `EXPO_PUBLIC_*` vars are available client-side; copy `.env.example` to `.env.local`. `app.config.ts` (dynamic) is used alongside `app.json`; build profiles are in `eas.json`.
 
 ### Path Alias
 

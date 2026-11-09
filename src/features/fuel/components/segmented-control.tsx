@@ -29,8 +29,15 @@ export function SegmentedControl<T extends string>({
                   accessibilityRole="button"
                   accessibilityState={{ selected: active }}
                   style={{ minHeight: 44 }}
-                  className={cn('flex-1 items-center justify-center rounded-md px-2', active ? 'bg-primary' : '')}>
-                  <ThemedText variant="body-small" weight="semibold" color={active ? 'inverse' : 'default'}>
+                  className={cn('flex-1 items-center justify-center rounded-md px-1', active ? 'bg-primary' : '')}>
+                  {/* One line only: shrink the text instead of wrapping ("Automatique" on narrow screens) */}
+                  <ThemedText
+                     variant="body-small"
+                     weight="semibold"
+                     color={active ? 'inverse' : 'default'}
+                     numberOfLines={1}
+                     adjustsFontSizeToFit
+                     minimumFontScale={0.75}>
                      {o.label}
                   </ThemedText>
                </Pressable>

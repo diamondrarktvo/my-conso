@@ -1,5 +1,13 @@
+export interface Vehicle {
+   id: string;
+   name: string;
+   /** undefined until the user fills it in */
+   tankCapacityLiters?: number;
+}
+
 export interface FuelEntry {
    id: string;
+   vehicleId: string;
    /** ISO date-time */
    date: string;
    /** Total odometer reading in km */
@@ -16,17 +24,22 @@ export interface FuelEntry {
    updatedAt: string;
 }
 
+/** App-wide settings (per-vehicle settings live on Vehicle). */
 export interface Settings {
-   vehicleName: string;
-   /** undefined until the user fills it in */
-   tankCapacityLiters?: number;
    currency: string;
    alertThresholdPercent: number;
 }
 
-export const DEFAULT_SETTINGS: Settings = {
-   vehicleName: 'Yamaha Cygnus X 2013',
+export const DEFAULT_VEHICLE_ID = 'default';
+export const DEFAULT_VEHICLE_NAME = 'Yamaha Cygnus X 2013';
+
+export const DEFAULT_VEHICLE: Vehicle = {
+   id: DEFAULT_VEHICLE_ID,
+   name: DEFAULT_VEHICLE_NAME,
    tankCapacityLiters: undefined,
+};
+
+export const DEFAULT_SETTINGS: Settings = {
    currency: 'Ar',
    alertThresholdPercent: 15,
 };

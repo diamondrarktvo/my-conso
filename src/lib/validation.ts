@@ -3,7 +3,7 @@
  * Errors block saving; warnings ask the user to confirm.
  */
 
-import type { FuelEntry, Settings } from '@/src/features/fuel/types';
+import type { FuelEntry } from '@/src/features/fuel/types';
 import { previewEntry, sortEntries } from './consumption';
 
 export type FieldErrorCode =
@@ -55,7 +55,7 @@ export const round2 = (n: number) => Math.round(n * 100) / 100;
 export function validateDraft(
    draft: FormDraft,
    entries: FuelEntry[],
-   settings: Pick<Settings, 'tankCapacityLiters'>,
+   settings: { tankCapacityLiters?: number },
    editingId?: string,
 ): ValidationResult {
    const errors: FieldErrors = {};

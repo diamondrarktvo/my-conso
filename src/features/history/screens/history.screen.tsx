@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { TabScreen } from '@/src/features/fuel/components/tab-screen';
+import { VehicleSwitcher } from '@/src/features/fuel/components/vehicle-switcher';
 import { AddFab } from '@/src/features/fuel/components/add-fab';
-import { useConsumption, useFuelStore } from '@/src/features/fuel/store';
+import { useConsumption, useFuelStore, useVehicleEntries } from '@/src/features/fuel/store';
 import { entryCost, type EntryRole } from '@/src/lib/consumption';
 import { formatDate, formatKm, formatL100, formatLiters, formatMoney, formatMonthYear, monthKey } from '@/src/lib/format';
 import type { FuelEntry } from '@/src/features/fuel/types';
@@ -43,7 +44,7 @@ interface Section {
 export function HistoryScreen() {
    const { t } = useTranslation('fuel');
    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-   const entries = useFuelStore(s => s.entries);
+   const entries = useVehicleEntries();
    const currency = useFuelStore(s => s.settings.currency);
    const { info } = useConsumption();
 
@@ -71,6 +72,9 @@ export function HistoryScreen() {
          <ThemedText variant="h2" weight="bold" className="px-4 pt-4 pb-2">
             {t('history.title')}
          </ThemedText>
+         <ThemedView className="bg-transparent px-4 pb-2">
+            <VehicleSwitcher />
+         </ThemedView>
          <SectionList
             sections={sections}
             keyExtractor={e => e.id}

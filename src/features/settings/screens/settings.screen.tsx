@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, Pressable, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import { Car, Check, Database, Palette, Pencil, Plus, SlidersHorizontal, TriangleAlert, type LucideIcon } from 'lucide-react-native';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
@@ -12,18 +15,45 @@ import { TabScreen } from '@/src/features/fuel/components/tab-screen';
 import { SegmentedControl } from '@/src/features/fuel/components/segmented-control';
 import { useFuelStore } from '@/src/features/fuel/store';
 import { useTheme, type ThemeMode } from '@/src/theme/ThemeProvider';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
 import { showToast } from '@/src/providers/toast-provider';
 import { showError } from '@/src/providers/error-provider';
 import { parseDecimal, formatNumber } from '@/src/lib/format';
 import { parseBackupJson, toBackupJson, toCsv } from '@/src/lib/data-io';
 import { DEFAULT_SETTINGS } from '@/src/features/fuel/types';
+import type { RootStackParamList } from '@/src/navigation/types';
+import { cn } from '@/src/utils/tailwind';
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+   icon: Icon,
+   title,
+   description,
+   tone = 'default',
+   children,
+}: {
+   icon: LucideIcon;
+   title: string;
+   description?: string;
+   tone?: 'default' | 'danger';
+   children: React.ReactNode;
+}) {
+   const primary = useThemeColor('--color-primary', 'primary');
+   const danger = useThemeColor('--color-danger', 'danger');
    return (
       <ThemedView variant="card" padding="md" rounded="xl" border="subtle" gap="md">
-         <ThemedText variant="body-large" weight="bold">
-            {title}
-         </ThemedText>
+         <ThemedView flex="row" items="center" gap="sm" className="bg-transparent">
+            <Icon size={22} color={tone === 'danger' ? danger : primary} />
+            <ThemedView className="flex-1 bg-transparent" gap="xs">
+               <ThemedText variant="body-large" weight="bold" color={tone === 'danger' ? 'danger' : 'default'}>
+                  {title}
+               </ThemedText>
+               {description ? (
+                  <ThemedText variant="caption" color="secondary">
+                     {description}
+                  </ThemedText>
+               ) : null}
+            </ThemedView>
+         </ThemedView>
          {children}
       </ThemedView>
    );
@@ -31,24 +61,29 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function SettingsScreen() {
    const { t } = useTranslation('fuel');
+   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
    const { theme, setTheme } = useTheme();
+   const primary = useThemeColor('--color-primary', 'primary');
+   const inverse = useThemeColor('--color-foreground-inverse', 'foregroundInverse');
+   const muted = useThemeColor('--color-foreground-secondary', 'foregroundSecondary');
+
    const settings = useFuelStore(s => s.settings);
    const entries = useFuelStore(s => s.entries);
+   const vehicles = useFuelStore(s => s.vehicles);
+   const activeVehicleId = useFuelStore(s => s.activeVehicleId);
+   const setActiveVehicle = useFuelStore(s => s.setActiveVehicle);
    const updateSettings = useFuelStore(s => s.updateSettings);
    const replaceAll = useFuelStore(s => s.replaceAll);
    const clearAll = useFuelStore(s => s.clearAll);
 
-   const [name, setName] = useState(settings.vehicleName);
-   const [tank, setTank] = useState(settings.tankCapacityLiters != null ? formatNumber(settings.tankCapacityLiters, 1).replace(/,0$/, '') : '');
    const [currency, setCurrency] = useState(settings.currency);
    const [threshold, setThreshold] = useState(String(settings.alertThresholdPercent));
 
-   const commitName = () => updateSettings({ vehicleName: name.trim() || DEFAULT_SETTINGS.vehicleName });
-   const commitTank = () => {
-      const v = parseDecimal(tank);
-      updateSettings({ tankCapacityLiters: v != null && v > 0 ? v : undefined });
+   const commitCurrency = () => {
+      const next = currency.trim() || DEFAULT_SETTINGS.currency;
+      setCurrency(next);
+      updateSettings({ currency: next });
    };
-   const commitCurrency = () => updateSettings({ currency: currency.trim() || DEFAULT_SETTINGS.currency });
    const commitThreshold = () => {
       const v = parseDecimal(threshold);
       const next = v != null && v > 0 ? v : DEFAULT_SETTINGS.alertThresholdPercent;
@@ -73,8 +108,9 @@ export function SettingsScreen() {
    };
 
    const stamp = new Date().toISOString().slice(0, 10);
-   const exportJson = () => share(`my-conso-${stamp}.json`, toBackupJson(entries, settings), 'application/json');
-   const exportCsv = () => share(`my-conso-${stamp}.csv`, toCsv(entries), 'text/csv');
+   const exportJson = () =>
+      share(`my-conso-${stamp}.json`, toBackupJson({ entries, vehicles, activeVehicleId, settings }), 'application/json');
+   const exportCsv = () => share(`my-conso-${stamp}.csv`, toCsv(entries, vehicles), 'text/csv');
 
    const importBackup = async () => {
       try {
@@ -92,9 +128,12 @@ export function SettingsScreen() {
                text: t('common.confirm'),
                style: 'destructive',
                onPress: () => {
-                  replaceAll({ entries: parsed.entries, settings: parsed.settings });
-                  setName(parsed.settings.vehicleName);
-                  setTank(parsed.settings.tankCapacityLiters != null ? String(parsed.settings.tankCapacityLiters).replace('.', ',') : '');
+                  replaceAll({
+                     entries: parsed.entries,
+                     vehicles: parsed.vehicles,
+                     activeVehicleId: parsed.activeVehicleId,
+                     settings: parsed.settings,
+                  });
                   setCurrency(parsed.settings.currency);
                   setThreshold(String(parsed.settings.alertThresholdPercent));
                   showToast('success', t('settings.import_done'));
@@ -120,8 +159,6 @@ export function SettingsScreen() {
                      style: 'destructive',
                      onPress: () => {
                         clearAll();
-                        setName(DEFAULT_SETTINGS.vehicleName);
-                        setTank('');
                         setCurrency(DEFAULT_SETTINGS.currency);
                         setThreshold(String(DEFAULT_SETTINGS.alertThresholdPercent));
                         showToast('success', t('settings.clear_done'));
@@ -144,17 +181,63 @@ export function SettingsScreen() {
                {t('settings.title')}
             </ThemedText>
 
-            <Section title={t('settings.vehicle')}>
-               <ThemedInput label={t('settings.vehicle_name')} value={name} onChangeText={setName} onBlur={commitName} size="lg" />
-               <ThemedInput
-                  label={t('settings.tank')}
-                  helperText={t('settings.tank_help')}
-                  value={tank}
-                  onChangeText={setTank}
-                  onBlur={commitTank}
-                  keyboardType="decimal-pad"
+            <Section icon={Car} title={t('settings.vehicles')} description={t('settings.vehicles_help')}>
+               <ThemedView gap="sm" className="bg-transparent">
+                  {vehicles.map(v => {
+                     const active = v.id === activeVehicleId;
+                     const count = entries.filter(e => e.vehicleId === v.id).length;
+                     return (
+                        <ThemedView
+                           key={v.id}
+                           flex="row"
+                           items="center"
+                           className={cn('rounded-lg border', active ? 'bg-primary-soft border-primary' : 'bg-background-secondary border-border-subtle')}>
+                           <Pressable
+                              onPress={() => setActiveVehicle(v.id)}
+                              accessibilityRole="radio"
+                              accessibilityState={{ selected: active }}
+                              style={{ minHeight: 64 }}
+                              className="flex-1 flex-row items-center gap-3 px-3">
+                              <ThemedView
+                                 className={cn('h-6 w-6 items-center justify-center rounded-full border-2', active ? 'bg-primary border-primary' : 'border-border bg-transparent')}>
+                                 {active ? <Check size={14} color={inverse} strokeWidth={3} /> : null}
+                              </ThemedView>
+                              <ThemedView className="flex-1 bg-transparent">
+                                 <ThemedText weight="semibold" numberOfLines={1}>
+                                    {v.name}
+                                 </ThemedText>
+                                 <ThemedText variant="caption" color="secondary" numberOfLines={1}>
+                                    {v.tankCapacityLiters != null
+                                       ? t('settings.vehicle_tank_value', { liters: formatNumber(v.tankCapacityLiters, 1).replace(/,0$/, '') })
+                                       : t('settings.vehicle_tank_unknown')}
+                                    {' · '}
+                                    {t('settings.vehicle_entries', { count })}
+                                 </ThemedText>
+                              </ThemedView>
+                           </Pressable>
+                           <Pressable
+                              onPress={() => navigation.navigate('VehicleForm', { vehicleId: v.id })}
+                              accessibilityRole="button"
+                              accessibilityLabel={t('settings.vehicle_edit', { name: v.name })}
+                              style={{ minWidth: 48, minHeight: 64 }}
+                              className="items-center justify-center">
+                              <Pencil size={20} color={muted} />
+                           </Pressable>
+                        </ThemedView>
+                     );
+                  })}
+               </ThemedView>
+               <ThemedButton
+                  title={t('settings.vehicle_add')}
+                  variant="outline"
                   size="lg"
+                  fullWidth
+                  leftIcon={<Plus size={20} color={primary} />}
+                  onPress={() => navigation.navigate('VehicleForm')}
                />
+            </Section>
+
+            <Section icon={SlidersHorizontal} title={t('settings.preferences')} description={t('settings.preferences_help')}>
                <ThemedInput label={t('settings.currency')} value={currency} onChangeText={setCurrency} onBlur={commitCurrency} maxLength={6} size="lg" />
                <ThemedInput
                   label={t('settings.alert_threshold')}
@@ -167,14 +250,19 @@ export function SettingsScreen() {
                />
             </Section>
 
-            <Section title={t('settings.appearance')}>
+            <Section icon={Palette} title={t('settings.appearance')} description={t('settings.appearance_help')}>
                <SegmentedControl options={themeOptions} value={theme} onChange={setTheme} />
             </Section>
 
-            <Section title={t('settings.data')}>
-               <ThemedButton title={t('settings.export_json')} variant="secondary" size="lg" fullWidth onPress={exportJson} />
-               <ThemedButton title={t('settings.export_csv')} variant="secondary" size="lg" fullWidth onPress={exportCsv} />
+            <Section icon={Database} title={t('settings.data')} description={t('settings.data_help')}>
+               <ThemedView flex="row" gap="sm" className="bg-transparent">
+                  <ThemedButton title="JSON" variant="secondary" size="lg" className="flex-1" accessibilityLabel={t('settings.export_json')} onPress={exportJson} />
+                  <ThemedButton title="CSV" variant="secondary" size="lg" className="flex-1" accessibilityLabel={t('settings.export_csv')} onPress={exportCsv} />
+               </ThemedView>
                <ThemedButton title={t('settings.import')} variant="outline" size="lg" fullWidth onPress={importBackup} />
+            </Section>
+
+            <Section icon={TriangleAlert} title={t('settings.danger_zone')} tone="danger">
                <ThemedButton title={t('settings.clear')} variant="danger" size="lg" fullWidth onPress={clearData} />
             </Section>
          </ScrollView>

@@ -51,7 +51,7 @@ GestureHandlerRootView → SafeAreaProvider → ThemeProvider
 
 ### Navigation
 
-[src/navigation/root-navigator.tsx](src/navigation/root-navigator.tsx) is a native stack: `Tabs` ([tab-navigator.tsx](src/navigation/tab-navigator.tsx): Home, History, Stats, Settings) and a modal `FuelForm` (add/edit a fill-up, `entryId` param = edit). No authentication, no backend: the app is 100 % offline and French-only for now (Malagasy planned).
+[src/navigation/root-navigator.tsx](src/navigation/root-navigator.tsx) is a native stack: `Tabs` ([tab-navigator.tsx](src/navigation/tab-navigator.tsx): Home, History, Stats, Settings) and modal `FuelForm` (add/edit a fill-up, `entryId` param = edit) and `VehicleForm` (add/edit a vehicle). No authentication, no backend: the app is 100 % offline and French-only for now (Malagasy planned).
 
 ### Key Providers
 
@@ -71,7 +71,7 @@ All persistence uses **MMKV** (not AsyncStorage). Single general-purpose cache i
 
 ### Fuel tracking domain
 
-Fill-ups and settings live in a zustand store persisted to MMKV ([src/features/fuel/store.ts](src/features/fuel/store.ts)). **Derived values (consumption, averages) are never stored**: they come from the pure "full-to-full" module [src/lib/consumption.ts](src/lib/consumption.ts) (`computeConsumption`, recomputed by `useConsumption()`). Never average per-segment averages: the global average is total liters × 100 / total km. Round only at display time via [src/lib/format.ts](src/lib/format.ts) (French formats, comma/point input via `parseDecimal`). Form rules live in [src/lib/validation.ts](src/lib/validation.ts) (returns codes, UI translates), backup/CSV in [src/lib/data-io.ts](src/lib/data-io.ts). Charts are hand-drawn with react-native-svg.
+Several vehicles are supported: every fill-up has a `vehicleId`, the store keeps `vehicles[]` + `activeVehicleId`, and screens read the active vehicle through `useActiveVehicle()` / `useVehicleEntries()` / `useConsumption()`. Currency and alert threshold are app-wide `settings`; tank capacity is per vehicle. The persisted store is versioned (v2); schema changes need a migration in [src/lib/migrations.ts](src/lib/migrations.ts) and backups ([src/lib/data-io.ts](src/lib/data-io.ts)) must stay importable from older versions. Fill-ups and settings live in a zustand store persisted to MMKV ([src/features/fuel/store.ts](src/features/fuel/store.ts)). **Derived values (consumption, averages) are never stored**: they come from the pure "full-to-full" module [src/lib/consumption.ts](src/lib/consumption.ts) (`computeConsumption`, recomputed by `useConsumption()`). Never average per-segment averages: the global average is total liters × 100 / total km. Round only at display time via [src/lib/format.ts](src/lib/format.ts) (French formats, comma/point input via `parseDecimal`). Form rules live in [src/lib/validation.ts](src/lib/validation.ts) (returns codes, UI translates), backup/CSV in [src/lib/data-io.ts](src/lib/data-io.ts). Charts are hand-drawn with react-native-svg.
 
 ### i18n
 

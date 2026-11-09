@@ -11,4 +11,6 @@ export type RootStackParamList = {
    Tabs: NavigatorScreenParams<TabParamList> | undefined;
    /** No entryId → new fill-up, entryId → edit */
    FuelForm: { entryId?: string } | undefined;
+   /** No vehicleId → new vehicle, vehicleId → edit */
+   VehicleForm: { vehicleId?: string } | undefined;
 };

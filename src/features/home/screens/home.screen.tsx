@@ -7,9 +7,10 @@ import { Card, ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedButton } from '@/src/components/ui/themed-button';
 import { TabScreen } from '@/src/features/fuel/components/tab-screen';
+import { VehicleSwitcher } from '@/src/features/fuel/components/vehicle-switcher';
 import { StatCard } from '@/src/features/fuel/components/stat-card';
 import { AddFab } from '@/src/features/fuel/components/add-fab';
-import { useConsumption, useFuelStore } from '@/src/features/fuel/store';
+import { useActiveVehicle, useConsumption, useFuelStore } from '@/src/features/fuel/store';
 import { computeAlert, estimatedRangeKm } from '@/src/lib/consumption';
 import { daysSince, formatDateLong, formatKm, formatKmPerL, formatL100, formatMoney, formatNumber } from '@/src/lib/format';
 import type { RootStackParamList } from '@/src/navigation/types';
@@ -18,13 +19,14 @@ export function HomeScreen() {
    const { t } = useTranslation('fuel');
    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
    const settings = useFuelStore(s => s.settings);
+   const vehicle = useActiveVehicle();
    const result = useConsumption();
    const openForm = () => navigation.navigate('FuelForm');
 
    const { summary, lastSegment, sorted } = result;
    const lastEntry = sorted.length ? sorted[sorted.length - 1] : null;
    const alert = computeAlert(result, settings.alertThresholdPercent);
-   const range = estimatedRangeKm(summary.l100, settings.tankCapacityLiters);
+   const range = estimatedRangeKm(summary.l100, vehicle.tankCapacityLiters);
    const dash = t('home.no_data');
 
    // Is the last segment worse (higher) than the average?
@@ -40,8 +42,9 @@ export function HomeScreen() {
       <TabScreen>
          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 112, gap: 12 }}>
             <ThemedText variant="h2" weight="bold">
-               {settings.vehicleName}
+               {vehicle.name}
             </ThemedText>
+            <VehicleSwitcher />
 
             {sorted.length === 0 ? (
                <Card padding="lg" rounded="xl" gap="md">

@@ -1,9 +1,11 @@
 import { validateDraft, type FormDraft } from '../validation';
 import { parseBackupJson, toBackupJson, toCsv } from '../data-io';
-import { DEFAULT_SETTINGS, type FuelEntry } from '@/src/features/fuel/types';
+import { migrateV1ToV2 } from '../migrations';
+import { DEFAULT_SETTINGS, DEFAULT_VEHICLE, type FuelEntry } from '@/src/features/fuel/types';
 
-const mk = (id: string, day: number, km: number, liters: number, full = true): FuelEntry => ({
+const mk = (id: string, day: number, km: number, liters: number, full = true, vehicleId = 'default'): FuelEntry => ({
    id,
+   vehicleId,
    date: new Date(2026, 2, day, 10).toISOString(),
    odometerKm: km,
    liters,
@@ -72,27 +74,79 @@ describe('validateDraft', () => {
    });
 });
 
+const vehicles = [
+   { id: 'default', name: 'Cygnus', tankCapacityLiters: 5.5 },
+   { id: 'v2', name: 'Honda PCX', tankCapacityLiters: undefined },
+];
+
 describe('sauvegarde', () => {
-   it('export puis import redonne les mêmes données', () => {
-      const json = toBackupJson(entries, { ...DEFAULT_SETTINGS, tankCapacityLiters: 5.5 });
+   it('export puis import redonne les mêmes données (plusieurs véhicules)', () => {
+      const all = [...entries, mk('x', 5, 300, 3, true, 'v2')];
+      const json = toBackupJson({ entries: all, vehicles, activeVehicleId: 'v2', settings: DEFAULT_SETTINGS });
       const r = parseBackupJson(json);
       expect(r.ok).toBe(true);
       if (r.ok) {
-         expect(r.entries).toHaveLength(3);
-         expect(r.entries[1].liters).toBe(4.2);
-         expect(r.settings.tankCapacityLiters).toBe(5.5);
+         expect(r.entries).toHaveLength(4);
+         expect(r.vehicles.map(v => v.name)).toEqual(['Cygnus', 'Honda PCX']);
+         expect(r.vehicles[0].tankCapacityLiters).toBe(5.5);
+         expect(r.activeVehicleId).toBe('v2');
+         expect(r.entries.find(e => e.id === 'x')!.vehicleId).toBe('v2');
+         expect(r.entries.find(e => e.id === 'b')!.liters).toBe(4.2);
       }
+   });
+   it('ancienne sauvegarde v1 : un véhicule créé depuis les réglages', () => {
+      const v1 = JSON.stringify({
+         version: 1,
+         settings: { vehicleName: 'Ma moto', tankCapacityLiters: 6, currency: 'Ar', alertThresholdPercent: 20 },
+         entries: entries.map(({ vehicleId: _v, ...e }) => e),
+      });
+      const r = parseBackupJson(v1);
+      expect(r.ok).toBe(true);
+      if (r.ok) {
+         expect(r.vehicles).toHaveLength(1);
+         expect(r.vehicles[0]).toMatchObject({ name: 'Ma moto', tankCapacityLiters: 6 });
+         expect(r.entries.every(e => e.vehicleId === r.vehicles[0].id)).toBe(true);
+         expect(r.settings.alertThresholdPercent).toBe(20);
+      }
+   });
+   it('un plein vers un véhicule inconnu est rattaché au premier véhicule', () => {
+      const json = toBackupJson({ entries: [mk('z', 1, 100, 3, true, 'ghost')], vehicles, activeVehicleId: 'ghost', settings: DEFAULT_SETTINGS });
+      const r = parseBackupJson(json);
+      expect(r.ok && r.entries[0].vehicleId).toBe('default');
+      expect(r.ok && r.activeVehicleId).toBe('default');
    });
    it('rejette un fichier invalide', () => {
       expect(parseBackupJson('pas du json')).toEqual({ ok: false, reason: 'invalid_json' });
       expect(parseBackupJson('{"a":1}')).toEqual({ ok: false, reason: 'invalid_format' });
       expect(parseBackupJson('{"entries":[{"id":"x"}]}')).toEqual({ ok: false, reason: 'invalid_entry' });
+      expect(parseBackupJson('{"entries":[],"vehicles":[{"id":"a"},{"id":"a"}]}')).toEqual({ ok: false, reason: 'invalid_vehicle' });
    });
-   it('CSV : en-tête + une ligne par plein, cellules échappées', () => {
+   it('CSV : en-tête + une ligne par plein, véhicule, cellules échappées', () => {
       const withNote = { ...entries[0], note: 'trajet, avec "passager"' };
-      const csv = toCsv([withNote, entries[1]]).split('\n');
+      const csv = toCsv([withNote, entries[1]], vehicles).split('\n');
       expect(csv).toHaveLength(3);
-      expect(csv[0].startsWith('date,kilometrage')).toBe(true);
+      expect(csv[0].startsWith('vehicule,date,kilometrage')).toBe(true);
+      expect(csv[1].startsWith('Cygnus,')).toBe(true);
       expect(csv[1]).toContain('"trajet, avec ""passager"""');
+   });
+});
+
+describe('migration v1 → v2', () => {
+   it('crée le véhicule par défaut depuis les anciens réglages et rattache les pleins', () => {
+      const old = {
+         entries: entries.map(({ vehicleId: _v, ...e }) => e),
+         settings: { vehicleName: 'Yamaha', tankCapacityLiters: 5.2, currency: 'Ar', alertThresholdPercent: 15 },
+      };
+      const m = migrateV1ToV2(old);
+      expect(m.vehicles).toEqual([{ id: 'default', name: 'Yamaha', tankCapacityLiters: 5.2 }]);
+      expect(m.activeVehicleId).toBe('default');
+      expect(m.entries).toHaveLength(3);
+      expect(m.entries.every(e => e.vehicleId === 'default')).toBe(true);
+      expect(m.settings).toEqual({ currency: 'Ar', alertThresholdPercent: 15 });
+   });
+   it('tolère un état vide ou corrompu', () => {
+      const m = migrateV1ToV2(undefined);
+      expect(m.entries).toEqual([]);
+      expect(m.vehicles[0].name).toBe(DEFAULT_VEHICLE.name);
    });
 });

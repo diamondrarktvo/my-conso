@@ -12,7 +12,7 @@ import { ThemedButton } from '@/src/components/ui/themed-button';
 import { DateTimeField } from '@/src/features/fuel/components/date-time-field';
 import { SegmentedControl } from '@/src/features/fuel/components/segmented-control';
 import { SwitchRow } from '@/src/features/fuel/components/switch-row';
-import { useFuelStore } from '@/src/features/fuel/store';
+import { useActiveVehicle, useFuelStore } from '@/src/features/fuel/store';
 import { previewEntry, sortEntries } from '@/src/lib/consumption';
 import { formatKm, formatKmPerL, formatL100, formatMoney, formatNumber, parseDecimal } from '@/src/lib/format';
 import { round2, validateDraft, type FormDraft } from '@/src/lib/validation';
@@ -36,8 +36,10 @@ export function FuelFormScreen() {
    const route = useRoute<RouteProp<RootStackParamList, 'FuelForm'>>();
    const entryId = route.params?.entryId;
 
-   const entries = useFuelStore(s => s.entries);
+   const allEntries = useFuelStore(s => s.entries);
+   const vehicles = useFuelStore(s => s.vehicles);
    const settings = useFuelStore(s => s.settings);
+   const activeVehicle = useActiveVehicle();
    const addEntry = useFuelStore(s => s.addEntry);
    const updateEntry = useFuelStore(s => s.updateEntry);
    const deleteEntry = useFuelStore(s => s.deleteEntry);
@@ -49,7 +51,10 @@ export function FuelFormScreen() {
       else navigation.reset({ index: 0, routes: [{ name: 'Tabs' }] });
    };
 
-   const existing = useMemo(() => entries.find(e => e.id === entryId), [entries, entryId]);
+   const existing = useMemo(() => allEntries.find(e => e.id === entryId), [allEntries, entryId]);
+   // Editing keeps the entry's own vehicle; a new fill-up goes to the active vehicle
+   const vehicle = (existing && vehicles.find(v => v.id === existing.vehicleId)) || activeVehicle;
+   const entries = useMemo(() => allEntries.filter(e => e.vehicleId === vehicle.id), [allEntries, vehicle.id]);
    const isEdit = !!existing;
 
    const [date, setDate] = useState(() => (existing ? new Date(existing.date) : new Date()));
@@ -98,9 +103,9 @@ export function FuelFormScreen() {
    };
 
    const validation = useMemo(
-      () => validateDraft(draft, entries, settings, entryId),
+      () => validateDraft(draft, entries, vehicle, entryId),
       // eslint-disable-next-line react-hooks/exhaustive-deps -- draft is rebuilt each render from the state below
-      [date, odometer, liters, priceText, priceMode, isFullTank, missedPrevious, entries, settings, entryId],
+      [date, odometer, liters, priceText, priceMode, isFullTank, missedPrevious, entries, vehicle, entryId],
    );
 
    const preview = useMemo(() => {
@@ -140,6 +145,7 @@ export function FuelFormScreen() {
       const pricePerLiter = resolved.pricePerLiter ?? undefined;
       const totalCost = resolved.totalCost ?? undefined;
       const input = {
+         vehicleId: vehicle.id,
          date: date.toISOString(),
          odometerKm: draft.odometerKm as number,
          liters: round2(draft.liters as number),
@@ -223,6 +229,11 @@ export function FuelFormScreen() {
             <ThemedText variant="h3" weight="bold">
                {isEdit ? t('form.title_edit') : t('form.title_new')}
             </ThemedText>
+            {vehicles.length > 1 ? (
+               <ThemedText color="secondary" numberOfLines={1} className="flex-1 text-right pr-2">
+                  {vehicle.name}
+               </ThemedText>
+            ) : null}
          </ThemedView>
 
          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 16 }} keyboardShouldPersistTaps="handled">

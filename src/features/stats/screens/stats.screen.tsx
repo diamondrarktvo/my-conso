@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { TabScreen } from '@/src/features/fuel/components/tab-screen';
+import { VehicleSwitcher } from '@/src/features/fuel/components/vehicle-switcher';
 import { SegmentedControl } from '@/src/features/fuel/components/segmented-control';
 import { LineChart } from '@/src/features/fuel/components/line-chart';
 import { BarChart } from '@/src/features/fuel/components/bar-chart';
-import { useConsumption, useFuelStore } from '@/src/features/fuel/store';
+import { useConsumption, useFuelStore, useVehicleEntries } from '@/src/features/fuel/store';
 import { entryCost, filterSegmentsByPeriod, summarize, type Period, type Segment } from '@/src/lib/consumption';
 import {
    formatDate,
@@ -39,7 +40,7 @@ const compactMoney = (v: number) => (v >= 1000 ? `${formatNumber(v / 1000, v >= 
 export function StatsScreen() {
    const { t } = useTranslation('fuel');
    const [period, setPeriod] = useState<Period>('6m');
-   const entries = useFuelStore(s => s.entries);
+   const entries = useVehicleEntries();
    const currency = useFuelStore(s => s.settings.currency);
    const { segments } = useConsumption();
 
@@ -81,6 +82,7 @@ export function StatsScreen() {
             <ThemedText variant="h2" weight="bold">
                {t('stats.title')}
             </ThemedText>
+            <VehicleSwitcher />
             <SegmentedControl options={periods} value={period} onChange={setPeriod} />
 
             <ThemedView variant="card" padding="md" rounded="xl" border="subtle" gap="sm">

@@ -3,7 +3,7 @@ import { Alert, Pressable, ScrollView } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { Screen } from '@/src/components/layout/screen';
 import { ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
@@ -42,6 +42,12 @@ export function FuelFormScreen() {
    const updateEntry = useFuelStore(s => s.updateEntry);
    const deleteEntry = useFuelStore(s => s.deleteEntry);
    const closeColor = useThemeColor('--color-foreground', 'foreground');
+
+   // Always return to the screen the user came from (Home or History); fall back to Home if the form was opened first.
+   const goBack = () => {
+      if (navigation.canGoBack()) navigation.goBack();
+      else navigation.reset({ index: 0, routes: [{ name: 'Tabs' }] });
+   };
 
    const existing = useMemo(() => entries.find(e => e.id === entryId), [entries, entryId]);
    const isEdit = !!existing;
@@ -147,7 +153,7 @@ export function FuelFormScreen() {
       if (isEdit && entryId) updateEntry(entryId, input);
       else addEntry(input);
       showToast('success', t('form.saved'));
-      navigation.goBack();
+      goBack();
    };
 
    const onSave = () => {
@@ -172,7 +178,7 @@ export function FuelFormScreen() {
             onPress: () => {
                if (entryId) deleteEntry(entryId);
                showToast('success', t('form.deleted'));
-               navigation.goBack();
+               goBack();
             },
          },
       ]);
@@ -204,18 +210,19 @@ export function FuelFormScreen() {
 
    return (
       <Screen withKeyboardAvoiding withSmallPadding={false}>
-         <ThemedView flex="row" items="center" justify="between" className="bg-transparent px-4 py-2">
+         <ThemedView flex="row" items="center" gap="sm" className="bg-transparent px-2 py-2">
+            <Pressable
+               onPress={goBack}
+               accessibilityRole="button"
+               accessibilityLabel={t('form.back')}
+               hitSlop={8}
+               style={{ minWidth: 44, minHeight: 44 }}
+               className="items-center justify-center">
+               <ArrowLeft size={26} color={closeColor} />
+            </Pressable>
             <ThemedText variant="h3" weight="bold">
                {isEdit ? t('form.title_edit') : t('form.title_new')}
             </ThemedText>
-            <Pressable
-               onPress={() => navigation.goBack()}
-               accessibilityRole="button"
-               accessibilityLabel={t('form.cancel')}
-               style={{ minWidth: 44, minHeight: 44 }}
-               className="items-center justify-center">
-               <X size={26} color={closeColor} />
-            </Pressable>
          </ThemedView>
 
          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 16 }} keyboardShouldPersistTaps="handled">
@@ -228,7 +235,11 @@ export function FuelFormScreen() {
                keyboardType="number-pad"
                size="lg"
                error={err(validation.errors.odometerKm)}
-               helperText={lastKnownKm != null ? t('form.odometer_hint', { km: formatKm(lastKnownKm) }) : undefined}
+               helperText={
+                  lastKnownKm != null
+                     ? `${t('form.odometer_help')}\n${t('form.odometer_hint', { km: formatKm(lastKnownKm) })}`
+                     : t('form.odometer_help')
+               }
             />
 
             <ThemedInput
@@ -282,7 +293,7 @@ export function FuelFormScreen() {
 
             <ThemedView gap="sm" className="bg-transparent">
                <ThemedButton title={t('form.save')} size="lg" fullWidth onPress={onSave} />
-               <ThemedButton title={t('form.cancel')} variant="secondary" size="lg" fullWidth onPress={() => navigation.goBack()} />
+               <ThemedButton title={t('form.cancel')} variant="secondary" size="lg" fullWidth onPress={() => goBack()} />
                {isEdit ? <ThemedButton title={t('form.delete')} variant="danger" size="lg" fullWidth onPress={onDelete} /> : null}
             </ThemedView>
          </ScrollView>

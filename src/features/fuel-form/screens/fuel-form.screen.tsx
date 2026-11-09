@@ -1,17 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView } from 'react-native';
+import { Alert } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft } from 'lucide-react-native';
 import { Screen } from '@/src/components/layout/screen';
-import { ThemedView } from '@/src/components/ui/themed-view';
+import { ScreenHeader } from '@/src/components/layout/screen-header';
+import { ScrollContainer } from '@/src/components/layout/scroll-container';
+import { Row, ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedInput } from '@/src/components/ui/themed-input';
 import { ThemedButton } from '@/src/components/ui/themed-button';
-import { DateTimeField } from '@/src/features/fuel/components/date-time-field';
-import { SegmentedControl } from '@/src/features/fuel/components/segmented-control';
-import { SwitchRow } from '@/src/features/fuel/components/switch-row';
+import { DateTimeField } from '@/src/components/ui/themed-date-time-field';
+import { SegmentedControl } from '@/src/components/ui/themed-segmented-control';
+import { SwitchRow } from '@/src/components/ui/themed-switch-row';
 import { useActiveVehicle, useFuelStore } from '@/src/features/fuel/store';
 import { VehicleAvatar } from '@/src/features/fuel/components/vehicle-avatar';
 import type { Vehicle } from '@/src/features/fuel/types';
@@ -19,7 +20,6 @@ import { previewEntry, sortEntries } from '@/src/lib/consumption';
 import { formatKm, formatKmPerL, formatL100, formatMoney, formatNumber, parseDecimal } from '@/src/lib/format';
 import { round2, validateDraft, type FormDraft } from '@/src/lib/validation';
 import { showToast } from '@/src/providers/toast-provider';
-import { useThemeColor } from '@/src/hooks/use-theme-color';
 import type { RootStackParamList } from '@/src/navigation/types';
 
 type PriceMode = 'per_liter' | 'total';
@@ -58,7 +58,6 @@ function FuelFormInner({ activeVehicle }: { activeVehicle: Vehicle }) {
    const addEntry = useFuelStore(s => s.addEntry);
    const updateEntry = useFuelStore(s => s.updateEntry);
    const deleteEntry = useFuelStore(s => s.deleteEntry);
-   const closeColor = useThemeColor('--color-foreground', 'foreground');
 
    // Always return to the screen the user came from (Home or History); fall back to Home if the form was opened first.
    const goBack = () => {
@@ -231,30 +230,23 @@ function FuelFormInner({ activeVehicle }: { activeVehicle: Vehicle }) {
 
    return (
       <Screen withKeyboardAvoiding withSmallPadding={false}>
-         <ThemedView flex="row" items="center" gap="sm" className="bg-transparent px-2 py-2">
-            <Pressable
-               onPress={goBack}
-               accessibilityRole="button"
-               accessibilityLabel={t('form.back')}
-               hitSlop={8}
-               style={{ minWidth: 44, minHeight: 44 }}
-               className="items-center justify-center">
-               <ArrowLeft size={26} color={closeColor} />
-            </Pressable>
-            <ThemedText variant="h3" weight="bold">
-               {isEdit ? t('form.title_edit') : t('form.title_new')}
-            </ThemedText>
-            {vehicles.length > 1 ? (
-               <ThemedView flex="row" items="center" justify="end" gap="sm" className="flex-1 bg-transparent pr-2">
-                  <ThemedText color="secondary" numberOfLines={1} className="shrink">
-                     {vehicle.name}
-                  </ThemedText>
-                  <VehicleAvatar vehicle={vehicle} size={32} />
-               </ThemedView>
-            ) : null}
-         </ThemedView>
+         <ScreenHeader
+            title={isEdit ? t('form.title_edit') : t('form.title_new')}
+            onBack={goBack}
+            backLabel={t('form.back')}
+            right={
+               vehicles.length > 1 ? (
+                  <Row items="center" justify="end" gap="sm" bg="transparent" className="flex-1 pr-2">
+                     <ThemedText color="secondary" numberOfLines={1} className="shrink">
+                        {vehicle.name}
+                     </ThemedText>
+                     <VehicleAvatar vehicle={vehicle} size="sm" />
+                  </Row>
+               ) : null
+            }
+         />
 
-         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 16 }} keyboardShouldPersistTaps="handled">
+         <ScrollContainer contentContainerClassName="gap-4 p-4 pb-8" keyboardShouldPersistTaps="handled">
             <DateTimeField label={t('form.date')} value={date} onChange={setDate} />
 
             <ThemedInput
@@ -287,7 +279,7 @@ function FuelFormInner({ activeVehicle }: { activeVehicle: Vehicle }) {
                      { value: 'total' as PriceMode, label: t('form.price_mode_total') },
                   ]}
                   value={priceMode}
-                  onChange={m => {
+                  onChange={(m: PriceMode) => {
                      setPriceMode(m);
                      setPriceText('');
                   }}
@@ -325,7 +317,7 @@ function FuelFormInner({ activeVehicle }: { activeVehicle: Vehicle }) {
                <ThemedButton title={t('form.cancel')} variant="secondary" size="lg" fullWidth onPress={() => goBack()} />
                {isEdit ? <ThemedButton title={t('form.delete')} variant="danger" size="lg" fullWidth onPress={onDelete} /> : null}
             </ThemedView>
-         </ScrollView>
+         </ScrollContainer>
       </Screen>
    );
 }

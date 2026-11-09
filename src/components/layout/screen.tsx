@@ -7,9 +7,13 @@ import { Skeleton } from 'boneyard-js/native';
 import { ThemedView } from '../ui/themed-view';
 import { cn } from '@/src/utils/tailwind';
 
+export type SafeAreaEdge = 'top' | 'bottom' | 'left' | 'right';
+
 interface ScreenProps {
    children: React.ReactNode;
    withSafeArea?: boolean;
+   /** Which safe-area insets to apply when `withSafeArea` is on (default: all). Tab screens use ['top'] since the tab bar handles the bottom. */
+   safeAreaEdges?: SafeAreaEdge[];
    withKeyboardAvoiding?: boolean;
    withSmallPadding?: boolean;
    withDismissKeyboardOnOutside?: boolean;
@@ -40,6 +44,7 @@ interface ScreenProps {
 export const Screen: React.FC<ScreenProps> = ({
    children,
    withSafeArea = true,
+   safeAreaEdges = ['top', 'bottom', 'left', 'right'],
    withSmallPadding = true,
    withKeyboardAvoiding = false,
    withDismissKeyboardOnOutside = true,
@@ -75,10 +80,10 @@ export const Screen: React.FC<ScreenProps> = ({
    // Handle safe area padding
    const safeAreaStyle = withSafeArea
       ? {
-           paddingTop: insets.top,
-           paddingBottom: insets.bottom,
-           paddingLeft: insets.left,
-           paddingRight: insets.right,
+           paddingTop: safeAreaEdges.includes('top') ? insets.top : 0,
+           paddingBottom: safeAreaEdges.includes('bottom') ? insets.bottom : 0,
+           paddingLeft: safeAreaEdges.includes('left') ? insets.left : 0,
+           paddingRight: safeAreaEdges.includes('right') ? insets.right : 0,
         }
       : {};
 

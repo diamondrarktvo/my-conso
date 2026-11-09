@@ -1,11 +1,12 @@
 import React from 'react';
-import { Pressable, ScrollView } from 'react-native';
+import { Row } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
+import { ThemedPressable } from '@/src/components/ui/themed-pressable';
 import { cn } from '@/src/utils/tailwind';
-import { VehicleAvatar } from './vehicle-avatar';
 import { useFuelStore } from '../store';
+import { VehicleAvatar } from './vehicle-avatar';
 
-/** Horizontal chips to pick the active vehicle. Renders nothing when there is only one vehicle. */
+/** Chips to pick the active vehicle (wraps on several lines). Renders nothing for a single vehicle. */
 export function VehicleSwitcher() {
    const vehicles = useFuelStore(s => s.vehicles);
    const activeId = useFuelStore(s => s.activeVehicleId);
@@ -14,24 +15,25 @@ export function VehicleSwitcher() {
    if (vehicles.length < 2) return null;
 
    return (
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+      <Row wrap="wrap" gap="sm" bg="transparent">
          {vehicles.map(v => {
             const active = v.id === activeId;
             return (
-               <Pressable
+               <ThemedPressable
                   key={v.id}
                   onPress={() => setActive(v.id)}
-                  accessibilityRole="button"
                   accessibilityState={{ selected: active }}
-                  style={{ minHeight: 44 }}
-                  className={cn('flex-row items-center gap-2 rounded-full border py-1 pr-4 pl-1', active ? 'bg-primary border-primary' : 'bg-card border-border')}>
-                  <VehicleAvatar vehicle={v} size={36} />
-                  <ThemedText weight="semibold" color={active ? 'inverse' : 'default'} numberOfLines={1}>
+                  className={cn(
+                     'max-w-full min-h-11 flex-row items-center gap-2 rounded-full border py-1 pr-4 pl-1',
+                     active ? 'bg-primary border-primary' : 'bg-card border-border',
+                  )}>
+                  <VehicleAvatar vehicle={v} size="sm" />
+                  <ThemedText weight="semibold" color={active ? 'inverse' : 'default'} numberOfLines={1} className="shrink">
                      {v.name}
                   </ThemedText>
-               </Pressable>
+               </ThemedPressable>
             );
          })}
-      </ScrollView>
+      </Row>
    );
 }

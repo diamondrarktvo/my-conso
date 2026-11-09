@@ -69,6 +69,17 @@ import {
    XCircle,
    CalendarX,
    Calendar,
+
+   // Fuel app
+   Pencil,
+   Trash2,
+   Image as ImageIcon,
+   Car,
+   Database,
+   Palette,
+   SlidersHorizontal,
+   History,
+   BarChart3,
 } from 'lucide-react-native';
 import { cn } from '@/src/utils/tailwind';
 
@@ -137,7 +148,18 @@ export type IconName =
    | 'globe'
    | 'headphones'
    | 'calendar-x'
-   | 'calendar';
+   | 'calendar'
+
+   // Fuel app
+   | 'pencil'
+   | 'trash'
+   | 'image'
+   | 'car'
+   | 'database'
+   | 'palette'
+   | 'sliders'
+   | 'history'
+   | 'bar-chart';
 
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 export type IconColor =
@@ -247,6 +269,17 @@ const iconMap: Record<IconName, React.ComponentType<any>> = {
    headphones: Headphones,
    'calendar-x': CalendarX,
    'calendar': Calendar,
+
+   // Fuel app
+   pencil: Pencil,
+   trash: Trash2,
+   image: ImageIcon,
+   car: Car,
+   database: Database,
+   palette: Palette,
+   sliders: SlidersHorizontal,
+   history: History,
+   'bar-chart': BarChart3,
 };
 
 // Size mappings (in pixels)

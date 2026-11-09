@@ -1,6 +1,6 @@
 import React from 'react';
-import { ThemedView } from '@/src/components/ui/themed-view';
-import { ThemedText } from '@/src/components/ui/themed-text';
+import { Row, ThemedView } from './themed-view';
+import { ThemedText } from './themed-text';
 
 interface StatCardProps {
    label: string;
@@ -18,7 +18,7 @@ export function StatCard({ label, value, unit, sub, trend, className }: StatCard
          <ThemedText variant="caption" color="secondary" numberOfLines={2}>
             {label}
          </ThemedText>
-         <ThemedView flex="row" items="baseline" gap="xs" className="bg-transparent flex-wrap">
+         <Row items="baseline" gap="xs" wrap="wrap" bg="transparent">
             <ThemedText variant="h2" weight="bold" numberOfLines={1} adjustsFontSizeToFit>
                {value}
             </ThemedText>
@@ -32,7 +32,7 @@ export function StatCard({ label, value, unit, sub, trend, className }: StatCard
                   {unit}
                </ThemedText>
             ) : null}
-         </ThemedView>
+         </Row>
          {sub ? (
             <ThemedText variant="caption" color="secondary">
                {sub}

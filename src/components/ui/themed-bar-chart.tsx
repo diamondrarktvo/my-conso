@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { ThemedView } from './themed-view';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
 
 export interface BarItem {
-  label: string;
-  value: number;
+   label: string;
+   value: number;
 }
 
 const HEIGHT = 200;
@@ -25,7 +25,7 @@ export function BarChart({ items, format }: { items: BarItem[]; format: (v: numb
    const barW = Math.min(slot * 0.6, 48);
 
    return (
-      <View onLayout={e => setWidth(e.nativeEvent.layout.width)} accessible accessibilityLabel={items.map(i => `${i.label} ${format(i.value)}`).join(', ')}>
+      <ThemedView bg="transparent" onLayout={e => setWidth(e.nativeEvent.layout.width)} accessible accessibilityLabel={items.map(i => `${i.label} ${format(i.value)}`).join(', ')}>
          {width > 0 && (
             <Svg width={width} height={HEIGHT}>
                <Line x1={PAD.left} x2={width - PAD.right} y1={PAD.top + innerH} y2={PAD.top + innerH} stroke={grid} strokeWidth={1} />
@@ -46,6 +46,6 @@ export function BarChart({ items, format }: { items: BarItem[]; format: (v: numb
                })}
             </Svg>
          )}
-      </View>
+      </ThemedView>
    );
 }

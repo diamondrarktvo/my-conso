@@ -92,3 +92,12 @@ Read env vars only through [src/lib/env.ts](src/lib/env.ts) (`ENV`), never `proc
 ## Feature Structure
 
 New features go in [src/features/](src/features/) as screen-level modules. Shared UI primitives belong in [src/components/ui/](src/components/ui/); layout wrappers in [src/components/layout/](src/components/layout/).
+
+## Code conventions (mandatory)
+
+- **Shared components first**: build screens with the components in [src/components/ui/](src/components/ui/) and [src/components/layout/](src/components/layout/) (`ThemedView`/`Row`/`Column`/`Card`, `ThemedText`, `ThemedButton`, `ThemedInput`, `ThemedIcon`, `Screen`, `ScrollContainer`…), not raw React Native primitives. If nothing fits, create or extend a shared component there; generic pieces never live inside a feature folder.
+- **Tailwind only**: style through `className` + `cn()`. Inline `style` is allowed only for values that can't be expressed in Tailwind (safe-area insets, computed sizes).
+- **No hard-coded colors**: only theme tokens / Tailwind palette classes (`bg-primary`, `text-foreground`…). JS-side colors (SVG, icons, navigation) come from `useThemeColor`, never from literals.
+- Follow the existing architecture (features/ for screens, providers/, theme/, i18n namespaces).
+- **Lists**: use `ThemedList` ([src/components/ui/themed-list.tsx](src/components/ui/themed-list.tsx)), a Uniwind-wrapped **FlashList v2** (no `estimatedItemSize`; FlashList has no sections, so flatten grouped data into typed rows + `getItemType`). Never use FlatList/SectionList/ScrollView-with-map for long lists.
+- Handy shared pieces: `ThemedPressable` (44 px targets via `min-h-11 min-w-11`), `ScreenHeader` (back arrow + title for stacked screens), `Screen` (`safeAreaEdges={['top']}` for tab screens), `ScrollContainer`, `SectionCard`, `InfoRow`, `SegmentedControl`, `ThemedFab`, `ThemedIcon` (add new icons to its `iconMap` instead of importing lucide in screens).

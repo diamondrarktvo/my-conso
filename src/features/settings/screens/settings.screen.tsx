@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView } from 'react-native';
+import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { Car, Check, Database, Palette, Pencil, Plus, SlidersHorizontal, TriangleAlert, type LucideIcon } from 'lucide-react-native';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
-import { ThemedView } from '@/src/components/ui/themed-view';
+import { Screen } from '@/src/components/layout/screen';
+import { ScrollContainer } from '@/src/components/layout/scroll-container';
+import { Row, ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedInput } from '@/src/components/ui/themed-input';
 import { ThemedButton } from '@/src/components/ui/themed-button';
-import { TabScreen } from '@/src/features/fuel/components/tab-screen';
+import { ThemedIcon } from '@/src/components/ui/themed-icon';
+import { ThemedPressable } from '@/src/components/ui/themed-pressable';
+import { SectionCard } from '@/src/components/ui/themed-section-card';
+import { SegmentedControl } from '@/src/components/ui/themed-segmented-control';
 import { VehicleAvatar } from '@/src/features/fuel/components/vehicle-avatar';
-import { SegmentedControl } from '@/src/features/fuel/components/segmented-control';
 import { useFuelStore } from '@/src/features/fuel/store';
 import { useTheme, type ThemeMode } from '@/src/theme/ThemeProvider';
-import { useThemeColor } from '@/src/hooks/use-theme-color';
 import { showToast } from '@/src/providers/toast-provider';
 import { showError } from '@/src/providers/error-provider';
 import { parseDecimal, formatNumber } from '@/src/lib/format';
@@ -25,48 +27,10 @@ import { DEFAULT_SETTINGS } from '@/src/features/fuel/types';
 import type { RootStackParamList } from '@/src/navigation/types';
 import { cn } from '@/src/utils/tailwind';
 
-function Section({
-   icon: Icon,
-   title,
-   description,
-   tone = 'default',
-   children,
-}: {
-   icon: LucideIcon;
-   title: string;
-   description?: string;
-   tone?: 'default' | 'danger';
-   children: React.ReactNode;
-}) {
-   const primary = useThemeColor('--color-primary', 'primary');
-   const danger = useThemeColor('--color-danger', 'danger');
-   return (
-      <ThemedView variant="card" padding="md" rounded="xl" border="subtle" gap="md">
-         <ThemedView flex="row" items="center" gap="sm" className="bg-transparent">
-            <Icon size={22} color={tone === 'danger' ? danger : primary} />
-            <ThemedView className="flex-1 bg-transparent" gap="xs">
-               <ThemedText variant="body-large" weight="bold" color={tone === 'danger' ? 'danger' : 'default'}>
-                  {title}
-               </ThemedText>
-               {description ? (
-                  <ThemedText variant="caption" color="secondary">
-                     {description}
-                  </ThemedText>
-               ) : null}
-            </ThemedView>
-         </ThemedView>
-         {children}
-      </ThemedView>
-   );
-}
-
 export function SettingsScreen() {
    const { t } = useTranslation('fuel');
    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
    const { theme, setTheme } = useTheme();
-   const primary = useThemeColor('--color-primary', 'primary');
-   const inverse = useThemeColor('--color-foreground-inverse', 'foregroundInverse');
-   const muted = useThemeColor('--color-foreground-secondary', 'foregroundSecondary');
 
    const settings = useFuelStore(s => s.settings);
    const entries = useFuelStore(s => s.entries);
@@ -179,14 +143,14 @@ export function SettingsScreen() {
    ];
 
    return (
-      <TabScreen>
-         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 16 }} keyboardShouldPersistTaps="handled">
+      <Screen safeAreaEdges={['top']} withSmallPadding={false} withDismissKeyboardOnOutside={false}>
+         <ScrollContainer contentContainerClassName="gap-4 p-4 pb-8" keyboardShouldPersistTaps="handled">
             <ThemedText variant="h2" weight="bold">
                {t('settings.title')}
             </ThemedText>
 
-            <Section icon={Car} title={t('settings.vehicles')} description={t('settings.vehicles_help')}>
-               <ThemedView gap="sm" className="bg-transparent">
+            <SectionCard icon="car" title={t('settings.vehicles')} description={t('settings.vehicles_help')}>
+               <ThemedView gap="sm" bg="transparent">
                   {vehicles.length === 0 ? (
                      <ThemedText color="secondary">{t('settings.vehicles_empty')}</ThemedText>
                   ) : null}
@@ -194,23 +158,21 @@ export function SettingsScreen() {
                      const active = v.id === activeVehicleId;
                      const count = entries.filter(e => e.vehicleId === v.id).length;
                      return (
-                        <ThemedView
+                        <Row
                            key={v.id}
-                           flex="row"
                            items="center"
                            className={cn('rounded-lg border', active ? 'bg-primary-soft border-primary' : 'bg-background-secondary border-border-subtle')}>
-                           <Pressable
+                           <ThemedPressable
                               onPress={() => setActiveVehicle(v.id)}
                               accessibilityRole="radio"
                               accessibilityState={{ selected: active }}
-                              style={{ minHeight: 64 }}
-                              className="flex-1 flex-row items-center gap-3 px-3">
+                              className="min-h-16 flex-1 flex-row items-center gap-3 px-3">
                               <ThemedView
-                                 className={cn('h-6 w-6 items-center justify-center rounded-full border-2', active ? 'bg-primary border-primary' : 'border-border bg-transparent')}>
-                                 {active ? <Check size={14} color={inverse} strokeWidth={3} /> : null}
+                                 className={cn('size-6 items-center justify-center rounded-full border-2', active ? 'bg-primary border-primary' : 'border-border bg-transparent')}>
+                                 {active ? <ThemedIcon name="check" color="inverse" customSize={14} strokeWidth={3} /> : null}
                               </ThemedView>
-                              <VehicleAvatar vehicle={v} size={44} />
-                              <ThemedView className="flex-1 bg-transparent">
+                              <VehicleAvatar vehicle={v} size="md" />
+                              <ThemedView bg="transparent" className="flex-1">
                                  <ThemedText weight="semibold" numberOfLines={1}>
                                     {v.name}
                                  </ThemedText>
@@ -222,16 +184,14 @@ export function SettingsScreen() {
                                     {t('settings.vehicle_entries', { count })}
                                  </ThemedText>
                               </ThemedView>
-                           </Pressable>
-                           <Pressable
+                           </ThemedPressable>
+                           <ThemedPressable
                               onPress={() => navigation.navigate('VehicleForm', { vehicleId: v.id })}
-                              accessibilityRole="button"
                               accessibilityLabel={t('settings.vehicle_edit', { name: v.name })}
-                              style={{ minWidth: 48, minHeight: 64 }}
-                              className="items-center justify-center">
-                              <Pencil size={20} color={muted} />
-                           </Pressable>
-                        </ThemedView>
+                              className="min-h-16 min-w-12 items-center justify-center">
+                              <ThemedIcon name="pencil" color="secondary" />
+                           </ThemedPressable>
+                        </Row>
                      );
                   })}
                </ThemedView>
@@ -240,12 +200,12 @@ export function SettingsScreen() {
                   variant="outline"
                   size="lg"
                   fullWidth
-                  leftIcon={<Plus size={20} color={primary} />}
+                  leftIcon={<ThemedIcon name="plus" color="primary" />}
                   onPress={() => navigation.navigate('VehicleForm')}
                />
-            </Section>
+            </SectionCard>
 
-            <Section icon={SlidersHorizontal} title={t('settings.preferences')} description={t('settings.preferences_help')}>
+            <SectionCard icon="sliders" title={t('settings.preferences')} description={t('settings.preferences_help')}>
                <ThemedInput label={t('settings.currency')} value={currency} onChangeText={setCurrency} onBlur={commitCurrency} maxLength={6} size="lg" />
                <ThemedInput
                   label={t('settings.alert_threshold')}
@@ -256,24 +216,24 @@ export function SettingsScreen() {
                   keyboardType="decimal-pad"
                   size="lg"
                />
-            </Section>
+            </SectionCard>
 
-            <Section icon={Palette} title={t('settings.appearance')} description={t('settings.appearance_help')}>
+            <SectionCard icon="palette" title={t('settings.appearance')} description={t('settings.appearance_help')}>
                <SegmentedControl options={themeOptions} value={theme} onChange={setTheme} />
-            </Section>
+            </SectionCard>
 
-            <Section icon={Database} title={t('settings.data')} description={t('settings.data_help')}>
-               <ThemedView flex="row" gap="sm" className="bg-transparent">
+            <SectionCard icon="database" title={t('settings.data')} description={t('settings.data_help')}>
+               <Row gap="sm" bg="transparent">
                   <ThemedButton title="JSON" variant="secondary" size="lg" className="flex-1" accessibilityLabel={t('settings.export_json')} onPress={exportJson} />
                   <ThemedButton title="CSV" variant="secondary" size="lg" className="flex-1" accessibilityLabel={t('settings.export_csv')} onPress={exportCsv} />
-               </ThemedView>
+               </Row>
                <ThemedButton title={t('settings.import')} variant="outline" size="lg" fullWidth onPress={importBackup} />
-            </Section>
+            </SectionCard>
 
-            <Section icon={TriangleAlert} title={t('settings.danger_zone')} tone="danger">
+            <SectionCard icon="alert-triangle" title={t('settings.danger_zone')} tone="danger">
                <ThemedButton title={t('settings.clear')} variant="danger" size="lg" fullWidth onPress={clearData} />
-            </Section>
-         </ScrollView>
-      </TabScreen>
+            </SectionCard>
+         </ScrollContainer>
+      </Screen>
    );
 }

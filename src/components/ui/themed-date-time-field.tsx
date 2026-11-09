@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Platform, Pressable } from 'react-native';
+import React from 'react';
+import { Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerAndroid, type DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Calendar } from 'lucide-react-native';
-import { ThemedView } from '@/src/components/ui/themed-view';
-import { ThemedText } from '@/src/components/ui/themed-text';
-import { useThemeColor } from '@/src/hooks/use-theme-color';
+import { Row, ThemedView } from './themed-view';
+import { ThemedText } from './themed-text';
+import { ThemedIcon } from './themed-icon';
+import { ThemedPressable } from './themed-pressable';
 import { useTheme } from '@/src/theme/ThemeProvider';
 import { formatDateLong, formatTime } from '@/src/lib/format';
 
@@ -16,9 +16,7 @@ interface Props {
 
 /** Native date + time picker. Android: date dialog then time dialog. iOS: inline compact picker. */
 export function DateTimeField({ label, value, onChange }: Props) {
-   const iconColor = useThemeColor('--color-primary', 'primary');
    const { isDark } = useTheme();
-   const [, force] = useState(0);
 
    const openAndroid = () => {
       DateTimePickerAndroid.open({
@@ -36,7 +34,6 @@ export function DateTimeField({ label, value, onChange }: Props) {
                   const merged = new Date(date);
                   merged.setHours(time.getHours(), time.getMinutes(), 0, 0);
                   onChange(merged);
-                  force(n => n + 1);
                },
             });
          },
@@ -44,24 +41,22 @@ export function DateTimeField({ label, value, onChange }: Props) {
    };
 
    return (
-      <ThemedView gap="xs" className="bg-transparent">
+      <ThemedView gap="xs" bg="transparent">
          <ThemedText variant="label" weight="medium">
             {label}
          </ThemedText>
          {Platform.OS === 'android' ? (
-            <Pressable
+            <ThemedPressable
                onPress={openAndroid}
-               accessibilityRole="button"
                accessibilityLabel={label}
-               style={{ minHeight: 48 }}
-               className="bg-card border-border flex-row items-center gap-3 rounded-lg border px-4">
-               <Calendar size={20} color={iconColor} />
+               className="bg-card border-border min-h-12 flex-row items-center gap-3 rounded-lg border px-4">
+               <ThemedIcon name="calendar" color="primary" />
                <ThemedText>
                   {formatDateLong(value.toISOString())} · {formatTime(value.toISOString())}
                </ThemedText>
-            </Pressable>
+            </ThemedPressable>
          ) : (
-            <ThemedView flex="row" items="center" justify="start" className="bg-transparent" style={{ minHeight: 48 }}>
+            <Row items="center" justify="start" bg="transparent" className="min-h-12">
                <DateTimePicker
                   value={value}
                   mode="datetime"
@@ -71,7 +66,7 @@ export function DateTimeField({ label, value, onChange }: Props) {
                   themeVariant={isDark ? 'dark' : 'light'}
                   onChange={(_, d) => d && onChange(d)}
                />
-            </ThemedView>
+            </Row>
          )}
       </ThemedView>
    );

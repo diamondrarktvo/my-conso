@@ -1,7 +1,7 @@
 import React from 'react';
-import { Pressable } from 'react-native';
-import { ThemedView } from '@/src/components/ui/themed-view';
-import { ThemedText } from '@/src/components/ui/themed-text';
+import { Row } from './themed-view';
+import { ThemedText } from './themed-text';
+import { ThemedPressable } from './themed-pressable';
 import { cn } from '@/src/utils/tailwind';
 
 interface Option<T extends string> {
@@ -19,18 +19,16 @@ export function SegmentedControl<T extends string>({
    onChange: (v: T) => void;
 }) {
    return (
-      <ThemedView flex="row" rounded="lg" padding="xs" gap="xs" className="bg-background-secondary">
+      <Row rounded="lg" padding="xs" gap="xs" className="bg-background-secondary">
          {options.map(o => {
             const active = o.value === value;
             return (
-               <Pressable
+               <ThemedPressable
                   key={o.value}
                   onPress={() => onChange(o.value)}
-                  accessibilityRole="button"
                   accessibilityState={{ selected: active }}
-                  style={{ minHeight: 44 }}
-                  className={cn('flex-1 items-center justify-center rounded-md px-1', active ? 'bg-primary' : '')}>
-                  {/* One line only: shrink the text instead of wrapping ("Automatique" on narrow screens) */}
+                  className={cn('min-h-11 flex-1 items-center justify-center rounded-md px-1', active ? 'bg-primary' : '')}>
+                  {/* One line only: shrink the text instead of wrapping on narrow screens */}
                   <ThemedText
                      variant="body-small"
                      weight="semibold"
@@ -40,9 +38,9 @@ export function SegmentedControl<T extends string>({
                      minimumFontScale={0.75}>
                      {o.label}
                   </ThemedText>
-               </Pressable>
+               </ThemedPressable>
             );
          })}
-      </ThemedView>
+      </Row>
    );
 }

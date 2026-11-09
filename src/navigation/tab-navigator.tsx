@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BarChart3, History, Home, Settings } from 'lucide-react-native';
+import { ThemedIcon, type IconName } from '@/src/components/ui/themed-icon';
 import { useTranslation } from 'react-i18next';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
 import type { TabParamList } from './types';
@@ -10,6 +10,11 @@ import { StatsScreen } from '@/src/features/stats/screens/stats.screen';
 import { SettingsScreen } from '@/src/features/settings/screens/settings.screen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
+
+const tabIcon = (name: IconName) =>
+   function TabIcon({ color, size }: { color: string; size: number }) {
+      return <ThemedIcon name={name} customColor={color} customSize={size} />;
+   };
 
 export function TabNavigator() {
    const { t } = useTranslation('fuel');
@@ -30,22 +35,22 @@ export function TabNavigator() {
          <Tab.Screen
             name="Home"
             component={HomeScreen}
-            options={{ title: t('tabs.home'), tabBarIcon: ({ color, size }) => <Home color={color} size={size} /> }}
+            options={{ title: t('tabs.home'), tabBarIcon: tabIcon('home') }}
          />
          <Tab.Screen
             name="History"
             component={HistoryScreen}
-            options={{ title: t('tabs.history'), tabBarIcon: ({ color, size }) => <History color={color} size={size} /> }}
+            options={{ title: t('tabs.history'), tabBarIcon: tabIcon('history') }}
          />
          <Tab.Screen
             name="Stats"
             component={StatsScreen}
-            options={{ title: t('tabs.stats'), tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} /> }}
+            options={{ title: t('tabs.stats'), tabBarIcon: tabIcon('bar-chart') }}
          />
          <Tab.Screen
             name="Settings"
             component={SettingsScreen}
-            options={{ title: t('tabs.settings'), tabBarIcon: ({ color, size }) => <Settings color={color} size={size} /> }}
+            options={{ title: t('tabs.settings'), tabBarIcon: tabIcon('settings') }}
          />
       </Tab.Navigator>
    );

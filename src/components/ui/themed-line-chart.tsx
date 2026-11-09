@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { ThemedView } from './themed-view';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
 
@@ -37,7 +37,7 @@ export function LineChart({ points, average, format }: { points: LinePoint[]; av
    const step = Math.max(1, Math.ceil(points.length / 5));
 
    return (
-      <View onLayout={e => setWidth(e.nativeEvent.layout.width)} accessible accessibilityLabel={points.map(p => `${p.label} ${format(p.value)}`).join(', ')}>
+      <ThemedView bg="transparent" onLayout={e => setWidth(e.nativeEvent.layout.width)} accessible accessibilityLabel={points.map(p => `${p.label} ${format(p.value)}`).join(', ')}>
          {width > 0 && (
             <Svg width={width} height={HEIGHT}>
                {ticks.map((t, i) => (
@@ -64,6 +64,6 @@ export function LineChart({ points, average, format }: { points: LinePoint[]; av
                )}
             </Svg>
          )}
-      </View>
+      </ThemedView>
    );
 }

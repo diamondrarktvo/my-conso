@@ -1,17 +1,17 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { Card, ThemedView } from '@/src/components/ui/themed-view';
+import { Screen } from '@/src/components/layout/screen';
+import { ScrollContainer } from '@/src/components/layout/scroll-container';
+import { Card, Row, ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedButton } from '@/src/components/ui/themed-button';
-import { TabScreen } from '@/src/features/fuel/components/tab-screen';
+import { StatCard } from '@/src/components/ui/themed-stat-card';
+import { AddEntryFab } from '@/src/features/fuel/components/add-entry-fab';
 import { VehicleAvatar } from '@/src/features/fuel/components/vehicle-avatar';
-import { useOpenFuelForm } from '@/src/features/fuel/hooks';
 import { VehicleSwitcher } from '@/src/features/fuel/components/vehicle-switcher';
-import { StatCard } from '@/src/features/fuel/components/stat-card';
-import { AddFab } from '@/src/features/fuel/components/add-fab';
+import { useOpenFuelForm } from '@/src/features/fuel/hooks';
 import { useActiveVehicle, useConsumption, useFuelStore } from '@/src/features/fuel/store';
 import { computeAlert, estimatedRangeKm } from '@/src/lib/consumption';
 import { daysSince, formatDateLong, formatKm, formatKmPerL, formatL100, formatMoney, formatNumber } from '@/src/lib/format';
@@ -35,22 +35,26 @@ export function HomeScreen() {
    // Is the last segment worse (higher) than the average?
    const lastVsAvg =
       lastSegment && summary.l100 && Math.abs(lastSegment.l100 - summary.l100) > 1e-9
-         ? { direction: (lastSegment.l100 > summary.l100 ? 'up' : 'down') as 'up' | 'down', tone: (lastSegment.l100 > summary.l100 ? 'bad' : 'good') as 'good' | 'bad' }
+         ? {
+              direction: (lastSegment.l100 > summary.l100 ? 'up' : 'down') as 'up' | 'down',
+              tone: (lastSegment.l100 > summary.l100 ? 'bad' : 'good') as 'good' | 'bad',
+           }
          : undefined;
 
    const days = lastEntry ? daysSince(lastEntry.date) : 0;
-   const daysLabel = days === 0 ? t('home.days_ago_0') : days === 1 ? t('home.days_ago_1') : t('home.days_ago_other', { count: days });
+   const daysLabel =
+      days === 0 ? t('home.days_ago_0') : days === 1 ? t('home.days_ago_1') : t('home.days_ago_other', { count: days });
 
    return (
-      <TabScreen>
-         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 112, gap: 12 }}>
+      <Screen safeAreaEdges={['top']} withSmallPadding={false} withDismissKeyboardOnOutside={false}>
+         <ScrollContainer contentContainerClassName="gap-3 p-4 pb-28">
             {vehicle ? (
-               <ThemedView flex="row" items="center" gap="md" className="bg-transparent">
-                  <VehicleAvatar vehicle={vehicle} size={52} />
+               <Row items="center" gap="md" bg="transparent">
+                  <VehicleAvatar vehicle={vehicle} size="lg" />
                   <ThemedText variant="h2" weight="bold" numberOfLines={2} className="flex-1">
                      {vehicle.name}
                   </ThemedText>
-               </ThemedView>
+               </Row>
             ) : (
                <ThemedText variant="h2" weight="bold">
                   {t('home.app_name')}
@@ -79,12 +83,12 @@ export function HomeScreen() {
                      </ThemedText>
                      {summary.l100 != null ? (
                         <>
-                           <ThemedView flex="row" items="baseline" gap="sm" className="bg-transparent">
+                           <Row items="baseline" gap="sm" bg="transparent">
                               <ThemedText className="text-5xl font-bold">{formatL100(summary.l100)}</ThemedText>
                               <ThemedText variant="body-large" color="secondary">
                                  {t('unit.l100')}
                               </ThemedText>
-                           </ThemedView>
+                           </Row>
                            <ThemedText variant="body-large" color="secondary">
                               {formatKmPerL(summary.kmPerL ?? 0)} {t('unit.kml')}
                            </ThemedText>
@@ -100,7 +104,7 @@ export function HomeScreen() {
                      </ThemedView>
                   ) : null}
 
-                  <ThemedView flex="row" gap="sm" className="bg-transparent">
+                  <Row gap="sm" bg="transparent">
                      <StatCard
                         className="flex-1"
                         label={t('home.last_segment')}
@@ -114,11 +118,11 @@ export function HomeScreen() {
                         value={summary.costPer100Km != null ? formatNumber(summary.costPer100Km, 0) : dash}
                         unit={summary.costPer100Km != null ? settings.currency : undefined}
                      />
-                  </ThemedView>
-                  <ThemedView flex="row" gap="sm" className="bg-transparent">
+                  </Row>
+                  <Row gap="sm" bg="transparent">
                      <StatCard className="flex-1" label={t('home.total_km')} value={formatKm(summary.totalKm)} unit={t('unit.km')} />
                      <StatCard className="flex-1" label={t('home.total_spent')} value={formatMoney(result.totalSpent, settings.currency)} />
-                  </ThemedView>
+                  </Row>
                   <StatCard
                      label={t('home.range')}
                      value={range != null ? formatKm(range) : dash}
@@ -139,8 +143,8 @@ export function HomeScreen() {
                   ) : null}
                </>
             )}
-         </ScrollView>
-         {vehicle && sorted.length > 0 ? <AddFab onPress={openForm} /> : null}
-      </TabScreen>
+         </ScrollContainer>
+         {vehicle && sorted.length > 0 ? <AddEntryFab onPress={openForm} /> : null}
+      </Screen>
    );
 }

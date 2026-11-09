@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView } from 'react-native';
+import { Alert } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Camera, ImageIcon, Trash2 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Screen } from '@/src/components/layout/screen';
-import { ThemedView } from '@/src/components/ui/themed-view';
+import { ScreenHeader } from '@/src/components/layout/screen-header';
+import { ScrollContainer } from '@/src/components/layout/scroll-container';
+import { Row, ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedInput } from '@/src/components/ui/themed-input';
 import { ThemedButton } from '@/src/components/ui/themed-button';
+import { ThemedIcon } from '@/src/components/ui/themed-icon';
+import { ThemedPressable } from '@/src/components/ui/themed-pressable';
 import { VehicleAvatar } from '@/src/features/fuel/components/vehicle-avatar';
 import { useFuelStore } from '@/src/features/fuel/store';
 import { formatNumber, parseDecimal } from '@/src/lib/format';
 import { deleteVehiclePhoto, saveVehiclePhoto } from '@/src/lib/vehicle-photo';
 import { showToast } from '@/src/providers/toast-provider';
 import { showError } from '@/src/providers/error-provider';
-import { useThemeColor } from '@/src/hooks/use-theme-color';
 import type { RootStackParamList } from '@/src/navigation/types';
 
 const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
@@ -37,9 +39,6 @@ export function VehicleFormScreen() {
    const addVehicle = useFuelStore(s => s.addVehicle);
    const updateVehicle = useFuelStore(s => s.updateVehicle);
    const deleteVehicle = useFuelStore(s => s.deleteVehicle);
-   const iconColor = useThemeColor('--color-foreground', 'foreground');
-   const primary = useThemeColor('--color-primary', 'primary');
-   const danger = useThemeColor('--color-danger', 'danger');
 
    const existing = vehicles.find(v => v.id === vehicleId);
    const isEdit = !!existing;
@@ -117,37 +116,28 @@ export function VehicleFormScreen() {
 
    return (
       <Screen withKeyboardAvoiding withSmallPadding={false}>
-         <ThemedView flex="row" items="center" gap="sm" className="bg-transparent px-2 py-2">
-            <Pressable
-               onPress={goBack}
-               accessibilityRole="button"
-               accessibilityLabel={t('vehicle_form.back')}
-               hitSlop={8}
-               style={{ minWidth: 44, minHeight: 44 }}
-               className="items-center justify-center">
-               <ArrowLeft size={26} color={iconColor} />
-            </Pressable>
-            <ThemedText variant="h3" weight="bold">
-               {isEdit ? t('vehicle_form.title_edit') : t('vehicle_form.title_new')}
-            </ThemedText>
-         </ThemedView>
+         <ScreenHeader
+            title={isEdit ? t('vehicle_form.title_edit') : t('vehicle_form.title_new')}
+            onBack={goBack}
+            backLabel={t('vehicle_form.back')}
+         />
 
-         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 16 }} keyboardShouldPersistTaps="handled">
-            <ThemedView gap="md" className="items-center bg-transparent">
-               <VehicleAvatar vehicle={{ name: name || '?', photoUri }} size={112} />
-               <ThemedView items="center" gap="xs" className="bg-transparent">
+         <ScrollContainer contentContainerClassName="gap-4 p-4 pb-8" keyboardShouldPersistTaps="handled">
+            <ThemedView gap="md" bg="transparent" className="items-center">
+               <VehicleAvatar vehicle={{ name: name || '?', photoUri }} size="xl" />
+               <ThemedView items="center" gap="xs" bg="transparent">
                   <ThemedText weight="semibold">{t('vehicle_form.photo')}</ThemedText>
                   <ThemedText variant="caption" color="secondary" align="center">
                      {t('vehicle_form.photo_help')}
                   </ThemedText>
                </ThemedView>
-               <ThemedView flex="row" gap="sm" className="bg-transparent">
+               <Row gap="sm" bg="transparent">
                   <ThemedButton
                      title={t('vehicle_form.photo_take')}
                      variant="secondary"
                      size="md"
                      className="flex-1"
-                     leftIcon={<Camera size={18} color={primary} />}
+                     leftIcon={<ThemedIcon name="camera" color="primary" size="sm" />}
                      onPress={() => pick('camera')}
                   />
                   <ThemedButton
@@ -155,21 +145,17 @@ export function VehicleFormScreen() {
                      variant="secondary"
                      size="md"
                      className="flex-1"
-                     leftIcon={<ImageIcon size={18} color={primary} />}
+                     leftIcon={<ThemedIcon name="image" color="primary" size="sm" />}
                      onPress={() => pick('library')}
                   />
-               </ThemedView>
+               </Row>
                {photoUri ? (
-                  <Pressable
-                     onPress={() => setPhotoUri(undefined)}
-                     accessibilityRole="button"
-                     style={{ minHeight: 44 }}
-                     className="flex-row items-center gap-2 px-3">
-                     <Trash2 size={18} color={danger} />
+                  <ThemedPressable onPress={() => setPhotoUri(undefined)} className="min-h-11 flex-row items-center gap-2 px-3">
+                     <ThemedIcon name="trash" color="danger" size="sm" />
                      <ThemedText color="danger" weight="semibold">
                         {t('vehicle_form.photo_remove')}
                      </ThemedText>
-                  </Pressable>
+                  </ThemedPressable>
                ) : null}
             </ThemedView>
 
@@ -189,12 +175,12 @@ export function VehicleFormScreen() {
                keyboardType="decimal-pad"
                size="lg"
             />
-            <ThemedView gap="sm" className="bg-transparent">
+            <ThemedView gap="sm" bg="transparent">
                <ThemedButton title={t('vehicle_form.save')} size="lg" fullWidth onPress={onSave} />
                <ThemedButton title={t('vehicle_form.cancel')} variant="secondary" size="lg" fullWidth onPress={goBack} />
                {isEdit ? <ThemedButton title={t('vehicle_form.delete')} variant="danger" size="lg" fullWidth onPress={onDelete} /> : null}
             </ThemedView>
-         </ScrollView>
+         </ScrollContainer>
       </Screen>
    );
 }

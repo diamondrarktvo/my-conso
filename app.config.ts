@@ -84,7 +84,7 @@ export default ({ config }: { config: any }) => {
           "expo-splash-screen",
           {
             image: `${IMAGES}/splash-icon.png`,
-            imageWidth: 220,
+            imageWidth: 340,
             backgroundColor: "#F97316",
             dark: { image: `${IMAGES}/splash-icon-dark.png`, backgroundColor: "#0F172A" },
           },

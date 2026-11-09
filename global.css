@@ -65,90 +65,99 @@
       --z-toast: 1060;
    }
 
+   /*
+    * --- COLOR TOKENS ---
+    * Brand: orange / amber (app icon) on night blue (slate). Values are hex on purpose:
+    * they must match src/constants/color.ts exactly, because JS-side consumers (SVG charts,
+    * tab bar, icons, toasts) can't read oklch(). Keep both files in sync.
+    * Contrast (WCAG): all text/background pairs below are >= 4.5:1; text on filled
+    * primary/danger/success/warning surfaces uses --color-foreground-inverse.
+    */
+
    /* --- LIGHT MODE --- */
    @variant light {
-      /* Backgrounds */
-      --color-background: oklch(98% 0.002 260);
-      --color-background-secondary: oklch(96% 0.003 260);
-      --color-card: oklch(100% 0 0);
-      --color-card-hover: oklch(97% 0.018 260);
+      /* Backgrounds (slate-50 / 100) */
+      --color-background: #f8fafc;
+      --color-background-secondary: #f1f5f9;
+      --color-card: #ffffff;
+      --color-card-hover: #f8fafc;
 
-      /* Text */
-      --color-foreground: oklch(16% 0.005 260);
-      --color-foreground-secondary: oklch(42% 0.008 260);
-      --color-foreground-muted: oklch(60% 0.008 260);
-      --color-foreground-inverse: oklch(98% 0.002 260);
+      /* Text (slate-900 / 600 / 500) */
+      --color-foreground: #0f172a;
+      --color-foreground-secondary: #475569;
+      --color-foreground-muted: #64748b;
+      --color-foreground-inverse: #ffffff;
 
-      /* Borders */
-      --color-border: oklch(87% 0.006 260);
-      --color-border-subtle: oklch(93% 0.004 260);
+      /* Borders (slate-300 / 200) */
+      --color-border: #cbd5e1;
+      --color-border-subtle: #e2e8f0;
 
-      /* Brand — Deep Purple (#5700B1) */
-      --color-primary: oklch(42% 0.227 296);
-      --color-primary-hover: oklch(50% 0.22 296);
-      --color-primary-soft: oklch(85% 0.1 296 / 0.3);
+      /* Brand: deep orange (white text = 5.2:1; the bright #f97316 only gives 2.8:1) */
+      --color-primary: #c2410c;
+      --color-primary-hover: #9a3412;
+      --color-primary-soft: #fff1e0;
 
-      /* Accent — Gold (#C9960A) — scan CTA, highlights */
-      --color-accent: oklch(68% 0.155 75);
-      --color-accent-hover: oklch(62% 0.155 75);
-      --color-accent-soft: oklch(97% 0.045 90 / 0.3);
+      /* Accent: amber */
+      --color-accent: #f59e0b;
+      --color-accent-hover: #d97706;
+      --color-accent-soft: #fef3c7;
 
       /* Semantic colors */
-      --color-danger: oklch(55% 0.215 25);
-      --color-danger-soft: oklch(92% 0.06 25 / 0.3);
-      --color-success: oklch(60% 0.155 148);
-      --color-success-soft: oklch(92% 0.06 148 / 0.3);
-      --color-warning: oklch(68% 0.155 72);
-      --color-warning-soft: oklch(92% 0.06 72 / 0.3);
-      --color-info: oklch(53% 0.135 260);
-      --color-info-soft: oklch(92% 0.04 260 / 0.3);
+      --color-danger: #dc2626;
+      --color-danger-soft: #fee2e2;
+      --color-success: #15803d;
+      --color-success-soft: #dcfce7;
+      --color-warning: #92400e;
+      --color-warning-soft: #fef3c7;
+      --color-info: #1d4ed8;
+      --color-info-soft: #dbeafe;
 
-      /* Rating — Gold stars */
-      --color-rating: oklch(83% 0.165 82);
-      --color-rating-inactive: oklch(87% 0.006 260);
+      /* Rating */
+      --color-rating: #fbbf24;
+      --color-rating-inactive: #cbd5e1;
    }
 
    /* --- DARK MODE --- */
    @variant dark {
-      /* Backgrounds — Deep Navy (#0F1E40) */
-      --color-background: oklch(18% 0.07 262);
-      --color-background-secondary: oklch(22% 0.08 262);
-      --color-card: oklch(28% 0.095 262);
-      --color-card-hover: oklch(33% 0.1 262);
+      /* Backgrounds: night blue (slate-900 / 800) */
+      --color-background: #0f172a;
+      --color-background-secondary: #1a2438;
+      --color-card: #1e293b;
+      --color-card-hover: #273449;
 
-      /* Text */
-      --color-foreground: oklch(98% 0.002 260);
-      --color-foreground-secondary: oklch(80% 0.065 260);
-      --color-foreground-muted: oklch(55% 0.04 260);
-      --color-foreground-inverse: oklch(18% 0.07 262);
+      /* Text (slate-50 / 300 / 400) */
+      --color-foreground: #f8fafc;
+      --color-foreground-secondary: #cbd5e1;
+      --color-foreground-muted: #94a3b8;
+      --color-foreground-inverse: #0f172a;
 
-      /* Borders */
-      --color-border: oklch(38% 0.08 262);
-      --color-border-subtle: oklch(30% 0.075 262);
+      /* Borders (slate-700) */
+      --color-border: #334155;
+      --color-border-subtle: #263248;
 
-      /* Brand — Lighter Purple — readable on dark bg */
-      --color-primary: oklch(65% 0.2 296);
-      --color-primary-hover: oklch(72% 0.18 296);
-      --color-primary-soft: oklch(35% 0.15 296 / 0.5);
+      /* Brand: bright orange (navy text on it = 7.9:1) */
+      --color-primary: #fb923c;
+      --color-primary-hover: #fdba74;
+      --color-primary-soft: #4a2c17;
 
-      /* Accent — Bright Gold (#F5BD2C) */
-      --color-accent: oklch(83% 0.165 82);
-      --color-accent-hover: oklch(78% 0.165 82);
-      --color-accent-soft: oklch(40% 0.1 82 / 0.3);
+      /* Accent: amber */
+      --color-accent: #fbbf24;
+      --color-accent-hover: #fcd34d;
+      --color-accent-soft: #43361a;
 
       /* Semantic colors */
-      --color-danger: oklch(65% 0.22 25);
-      --color-danger-soft: oklch(30% 0.12 25 / 0.3);
-      --color-success: oklch(70% 0.16 148);
-      --color-success-soft: oklch(30% 0.1 148 / 0.3);
-      --color-warning: oklch(78% 0.155 72);
-      --color-warning-soft: oklch(35% 0.1 72 / 0.3);
-      --color-info: oklch(65% 0.135 260);
-      --color-info-soft: oklch(30% 0.09 260 / 0.3);
+      --color-danger: #f87171;
+      --color-danger-soft: #4c2026;
+      --color-success: #4ade80;
+      --color-success-soft: #173a27;
+      --color-warning: #fbbf24;
+      --color-warning-soft: #43361a;
+      --color-info: #60a5fa;
+      --color-info-soft: #1e3a5f;
 
-      /* Rating — Gold stars */
-      --color-rating: oklch(83% 0.165 82);
-      --color-rating-inactive: oklch(35% 0.06 262);
+      /* Rating */
+      --color-rating: #fbbf24;
+      --color-rating-inactive: #475569;
    }
 }
 

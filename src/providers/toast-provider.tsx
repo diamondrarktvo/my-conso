@@ -25,7 +25,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
    const { effectiveTheme } = useTheme();
 
    // Get theme colors with fallbacks
-   const successColor = useThemeColor('--color-success', 'primary');
+   const successColor = useThemeColor('--color-success', 'success');
    const dangerColor = useThemeColor('--color-danger', 'danger');
    const secondaryColor = useThemeColor('--color-foreground-secondary', 'foregroundSecondary');
 

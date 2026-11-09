@@ -134,8 +134,8 @@ magick(mono_src, "-background", "black", "-alpha", "remove", "-colorspace", "gra
 os.remove(mono_src)
 
 # ---------- Splash (fond transparent) ----------
-render("splash-icon.png", svg(artwork(LIGHT, with_speed=False), scale=1.0))
-render("splash-icon-dark.png", svg(artwork(DARK, with_speed=False), scale=1.0))
+render("splash-icon.png", svg(artwork(LIGHT, with_speed=False), scale=0.62))
+render("splash-icon-dark.png", svg(artwork(DARK, with_speed=False), scale=0.62))
 
 # ---------- Favicon web ----------
 magick(icon, "-resize", "48x48", os.path.join(OUT, "favicon.png"))

@@ -454,7 +454,7 @@ export const ThemedInput = forwardRef<TextInput, ThemedInputProps>(
                         <ThemedIcon
                            name="search"
                            customSize={sizeStyle.iconSize - 2}
-                           customColor="#FFFFFF"
+                           color="inverse"
                         />
                      </TouchableOpacity>
                   )}

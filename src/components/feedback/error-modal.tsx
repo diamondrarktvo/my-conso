@@ -34,7 +34,7 @@ const DevPanel: React.FC<{ error: ClassifiedError }> = ({ error }) => {
             activeOpacity={0.8}>
             <ThemedView className="flex-row items-center justify-between px-3 py-2 bg-danger">
                <ThemedView className="flex-row items-center gap-2 bg-transparent">
-                  <ThemedIcon name="bug" size="sm" customColor="#fff" />
+                  <ThemedIcon name="bug" size="sm" color="inverse" />
                   <ThemedText variant="label" weight="bold" color="inverse">
                      {t('modal.dev_panel_title')}
                   </ThemedText>
@@ -42,7 +42,7 @@ const DevPanel: React.FC<{ error: ClassifiedError }> = ({ error }) => {
                <ThemedIcon
                   name={expanded ? 'chevron-up' : 'chevron-down'}
                   size="sm"
-                  customColor="#fff"
+                  color="inverse"
                />
             </ThemedView>
          </TouchableOpacity>
@@ -173,7 +173,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
                            <ThemedIcon
                               name={config.icon}
                               customSize={32}
-                              customColor="#fff"
+                              color="inverse"
                               strokeWidth={1.5}
                            />
                         </ThemedView>

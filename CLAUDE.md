@@ -61,7 +61,7 @@ GestureHandlerRootView → SafeAreaProvider → ThemeProvider
 
 ### Styling
 
-Uses **Uniwind** (Tailwind CSS v4 for React Native) via [global.css](global.css). Theme tokens use OKLCH color space with CSS variables for light/dark variants. Use the `cn()` helper from [src/utils/tailwind.ts](src/utils/tailwind.ts) to merge Tailwind classes.
+Uses **Uniwind** (Tailwind CSS v4 for React Native) via [global.css](global.css). Theme tokens are CSS variables with light/dark variants, written in **hex** (brand: orange/amber on night blue) and mirrored exactly in [src/constants/color.ts](src/constants/color.ts) for JS-side consumers (SVG, tab bar, icons) — change colors in both files. Text on filled surfaces uses `foreground-inverse` (white in light, navy in dark); keep WCAG contrast >= 4.5:1. Use the `cn()` helper from [src/utils/tailwind.ts](src/utils/tailwind.ts) to merge Tailwind classes.
 
 `ThemeProvider` ([src/theme/ThemeProvider.tsx](src/theme/ThemeProvider.tsx)) exposes `light | dark | system` mode. Themed primitive components live in [src/components/ui/](src/components/ui/).
 

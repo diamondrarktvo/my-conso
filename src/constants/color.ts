@@ -1,80 +1,81 @@
 /**
- * ALERT : Ce fichier de constantes est utilisé uniquement en tant que solution de secours (fallback)
- * au cas où le fichier global.css ne serait pas chargé, ou si certaines variables CSS
- * venaient à être absentes ou supprimées.
+ * Valeurs hexadécimales IDENTIQUES à celles de global.css (mêmes tokens, mêmes valeurs).
+ * Elles servent aux consommateurs JS qui ne savent pas lire les variables CSS (graphiques SVG,
+ * barre d'onglets, icônes, toasts) et de secours si une variable CSS est absente.
+ * Toute modification de couleur se fait dans les DEUX fichiers.
  */
 
 export const COLORS = {
    light: {
       // Backgrounds
-      background: '#fdfcfb',
-      backgroundSecondary: '#f2f4f8',
+      background: '#f8fafc',
+      backgroundSecondary: '#f1f5f9',
       card: '#ffffff',
-      cardHover: '#faf9f8',
+      cardHover: '#f8fafc',
 
       // Text
-      foreground: '#31343a',
-      foregroundSecondary: '#6b7280',
-      foregroundMuted: '#9ca3af',
-      foregroundInverse: '#f8f9fa',
+      foreground: '#0f172a',
+      foregroundSecondary: '#475569',
+      foregroundMuted: '#64748b',
+      foregroundInverse: '#ffffff',
 
       // Borders
-      border: '#d1d5db',
-      borderSubtle: '#e5e7eb',
+      border: '#cbd5e1',
+      borderSubtle: '#e2e8f0',
 
-      // Brand
-      primary: '#f46d25',
-      primaryHover: '#da5a1b',
-      primarySoft: 'rgba(255, 219, 196, 0.3)', // oklch(90% 0.08 45 / 0.3)
+      // Brand (deep orange: white text = 5.2:1)
+      primary: '#c2410c',
+      primaryHover: '#9a3412',
+      primarySoft: '#fff1e0',
 
       // Semantic
-      danger: '#e62e1c',
-      dangerSoft: 'rgba(255, 215, 209, 0.3)',
-      success: '#2ec15e',
-      successSoft: 'rgba(215, 245, 222, 0.3)',
-      warning: '#e8c200',
-      warningSoft: 'rgba(250, 240, 190, 0.3)',
-      info: '#00a3f5',
-      infoSoft: 'rgba(200, 235, 255, 0.3)',
+      danger: '#dc2626',
+      dangerSoft: '#fee2e2',
+      success: '#15803d',
+      successSoft: '#dcfce7',
+      warning: '#92400e',
+      warningSoft: '#fef3c7',
+      info: '#1d4ed8',
+      infoSoft: '#dbeafe',
 
       // Rating
-      rating: '#f5bf1e',
-      ratingInactive: '#dadada',
+      rating: '#fbbf24',
+      ratingInactive: '#cbd5e1',
    },
    dark: {
-      // Backgrounds
-      background: '#2a2421',
-      backgroundSecondary: '#36302d',
-      card: '#3b2d2a',
-      cardHover: '#433c39',
+      // Backgrounds (night blue)
+      background: '#0f172a',
+      backgroundSecondary: '#1a2438',
+      card: '#1e293b',
+      cardHover: '#273449',
 
       // Text
-      foreground: '#f7f2f0',
-      foregroundSecondary: '#c2bab7',
-      foregroundMuted: '#857c7a',
-      foregroundInverse: '#2a2624',
+      foreground: '#f8fafc',
+      foregroundSecondary: '#cbd5e1',
+      foregroundMuted: '#94a3b8',
+      foregroundInverse: '#0f172a',
 
       // Borders
-      border: '#514946',
-      borderSubtle: '#433c39',
+      border: '#334155',
+      borderSubtle: '#263248',
 
-      // Brand - Vibrant orange
-      primary: '#ff844b',
-      primaryHover: '#e6703e',
-      primarySoft: 'rgba(135, 85, 65, 0.3)',
+      // Brand (bright orange: navy text = 7.9:1)
+      primary: '#fb923c',
+      primaryHover: '#fdba74',
+      primarySoft: '#4a2c17',
 
       // Semantic
-      danger: '#ff5b49',
-      dangerSoft: 'rgba(120, 60, 55, 0.3)',
-      success: '#5ce68b',
-      successSoft: 'rgba(60, 115, 80, 0.3)',
-      warning: '#ffd64d',
-      warningSoft: 'rgba(115, 100, 50, 0.3)',
-      info: '#4dc8ff',
-      infoSoft: 'rgba(55, 105, 130, 0.3)',
+      danger: '#f87171',
+      dangerSoft: '#4c2026',
+      success: '#4ade80',
+      successSoft: '#173a27',
+      warning: '#fbbf24',
+      warningSoft: '#43361a',
+      info: '#60a5fa',
+      infoSoft: '#1e3a5f',
 
       // Rating
-      rating: '#ffd64d',
-      ratingInactive: '#5c504b',
+      rating: '#fbbf24',
+      ratingInactive: '#475569',
    },
 };

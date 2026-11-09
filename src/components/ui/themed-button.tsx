@@ -280,6 +280,8 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
    const primaryColor = useCSSVariable('--color-primary') || COLORS[effectiveTheme].primary;
    const foregroundColor =
       useCSSVariable('--color-foreground') || COLORS[effectiveTheme].foreground;
+   // Text/icon colour on filled surfaces: white in light mode, navy in dark mode (bright fills)
+   const onFilledColor = COLORS[effectiveTheme].foregroundInverse;
 
    // Determine icon color based on variant
    const getIconColor = () => {
@@ -290,7 +292,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
          variant === 'success' ||
          variant === 'warning'
       ) {
-         return '#FFFFFF';
+         return onFilledColor;
       }
       return foregroundColor;
    };
@@ -304,7 +306,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
          variant === 'success' ||
          variant === 'warning'
       ) {
-         return '#FFFFFF';
+         return onFilledColor;
       }
       return foregroundColor;
    };

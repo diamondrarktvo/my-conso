@@ -51,7 +51,7 @@ GestureHandlerRootView → SafeAreaProvider → ThemeProvider
 
 ### Navigation
 
-[src/navigation/root-navigator.tsx](src/navigation/root-navigator.tsx) renders a single-screen native stack (`Home`, no bottom tabs). Version 1 has no authentication and no backend (local-only).
+[src/navigation/root-navigator.tsx](src/navigation/root-navigator.tsx) is a native stack: `Tabs` ([tab-navigator.tsx](src/navigation/tab-navigator.tsx): Home, History, Stats, Settings) and a modal `FuelForm` (add/edit a fill-up, `entryId` param = edit). No authentication, no backend: the app is 100 % offline and French-only for now (Malagasy planned).
 
 ### Key Providers
 
@@ -69,9 +69,13 @@ Uses **Uniwind** (Tailwind CSS v4 for React Native) via [global.css](global.css)
 
 All persistence uses **MMKV** (not AsyncStorage). Single general-purpose cache instance.
 
+### Fuel tracking domain
+
+Fill-ups and settings live in a zustand store persisted to MMKV ([src/features/fuel/store.ts](src/features/fuel/store.ts)). **Derived values (consumption, averages) are never stored**: they come from the pure "full-to-full" module [src/lib/consumption.ts](src/lib/consumption.ts) (`computeConsumption`, recomputed by `useConsumption()`). Never average per-segment averages: the global average is total liters × 100 / total km. Round only at display time via [src/lib/format.ts](src/lib/format.ts) (French formats, comma/point input via `parseDecimal`). Form rules live in [src/lib/validation.ts](src/lib/validation.ts) (returns codes, UI translates), backup/CSV in [src/lib/data-io.ts](src/lib/data-io.ts). Charts are hand-drawn with react-native-svg.
+
 ### i18n
 
-`i18next` + `react-i18next` ([src/i18n/i18n.ts](src/i18n/i18n.ts)), locales `fr` (default) and `en` under `src/i18n/locales/<lng>/{common,errors}.json`. The selected language is persisted in the MMKV cache (`CACHE_KEYS.LANGUAGE`) via a custom language detector, so i18n depends on `cache-provider`'s `cacheStorage`. When adding a string, add it to **both** languages.
+`i18next` + `react-i18next` ([src/i18n/i18n.ts](src/i18n/i18n.ts)), locales `fr` (default) and `en` under `src/i18n/locales/<lng>/`; the fuel feature strings are in the `fuel` namespace, French only (types come from `Locales.fr`). The selected language is persisted in the MMKV cache (`CACHE_KEYS.LANGUAGE`) via a custom language detector, so i18n depends on `cache-provider`'s `cacheStorage`. New fuel strings go in `fr/fuel.json` only for now; a Malagasy `mg` locale can be added later.
 
 ### Error handling
 

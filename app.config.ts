@@ -49,7 +49,7 @@ export default ({ config }: { config: any }) => {
       version,
       orientation: "portrait",
       icon,
-      userInterfaceStyle: "light",
+      userInterfaceStyle: "automatic",
       assetBundlePatterns: ["**/*"],
       ...(EAS_PROJECT_ID ? { extra: { eas: { projectId: EAS_PROJECT_ID } } } : {}),
       ...(OWNER ? { owner: OWNER } : {}),
@@ -78,6 +78,8 @@ export default ({ config }: { config: any }) => {
       },
       plugins: [
         "expo-font",
+        "@react-native-community/datetimepicker",
+        "expo-sharing",
         [
           "expo-splash-screen",
           {

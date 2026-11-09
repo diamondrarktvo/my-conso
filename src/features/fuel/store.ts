@@ -4,11 +4,10 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 import { randomUUID } from 'expo-crypto';
 import { cacheStorage } from '@/src/providers/cache-provider';
 import { computeConsumption } from '@/src/lib/consumption';
-import { migrateV1ToV2 } from '@/src/lib/migrations';
+import { deleteVehiclePhoto } from '@/src/lib/vehicle-photo';
+import { migrateV1ToV2, migrateV2ToV3, type PersistedDataV2 } from '@/src/lib/migrations';
 import {
    DEFAULT_SETTINGS,
-   DEFAULT_VEHICLE,
-   DEFAULT_VEHICLE_ID,
    type FuelEntry,
    type Settings,
    type Vehicle,
@@ -28,7 +27,7 @@ export type VehicleInput = Omit<Vehicle, 'id'>;
 interface PersistedData {
    entries: FuelEntry[];
    vehicles: Vehicle[];
-   activeVehicleId: string;
+   activeVehicleId: string | null;
    settings: Settings;
 }
 
@@ -38,7 +37,7 @@ interface FuelState extends PersistedData {
    deleteEntry: (id: string) => void;
    addVehicle: (input: VehicleInput) => Vehicle;
    updateVehicle: (id: string, patch: Partial<VehicleInput>) => void;
-   /** Deletes the vehicle AND its fill-ups. The last vehicle can't be deleted. */
+   /** Deletes the vehicle AND its fill-ups (and its photo file). */
    deleteVehicle: (id: string) => void;
    setActiveVehicle: (id: string) => void;
    updateSettings: (patch: Partial<Settings>) => void;
@@ -51,8 +50,8 @@ export const useFuelStore = create<FuelState>()(
    persist(
       (set, get) => ({
          entries: [],
-         vehicles: [DEFAULT_VEHICLE],
-         activeVehicleId: DEFAULT_VEHICLE_ID,
+         vehicles: [],
+         activeVehicleId: null,
          settings: DEFAULT_SETTINGS,
 
          addEntry: input => {
@@ -82,16 +81,17 @@ export const useFuelStore = create<FuelState>()(
             set(s => ({ vehicles: s.vehicles.map(v => (v.id === id ? { ...v, ...patch, id } : v)) })),
 
          deleteVehicle: id => {
-            const { vehicles } = get();
-            if (vehicles.length <= 1) return;
+            const doomed = get().vehicles.find(v => v.id === id);
+            if (!doomed) return;
             set(s => {
                const remaining = s.vehicles.filter(v => v.id !== id);
                return {
                   vehicles: remaining,
                   entries: s.entries.filter(e => e.vehicleId !== id),
-                  activeVehicleId: s.activeVehicleId === id ? remaining[0].id : s.activeVehicleId,
+                  activeVehicleId: s.activeVehicleId === id ? (remaining[0]?.id ?? null) : s.activeVehicleId,
                };
             });
+            deleteVehiclePhoto(doomed.photoUri);
          },
 
          setActiveVehicle: id => {
@@ -105,14 +105,14 @@ export const useFuelStore = create<FuelState>()(
          clearAll: () =>
             set({
                entries: [],
-               vehicles: [DEFAULT_VEHICLE],
-               activeVehicleId: DEFAULT_VEHICLE_ID,
+               vehicles: [],
+               activeVehicleId: null,
                settings: DEFAULT_SETTINGS,
             }),
       }),
       {
          name: 'my-conso-fuel',
-         version: 2,
+         version: 3,
          storage: createJSONStorage(() => mmkvStorage),
          // Only persist data, never derived values or functions
          partialize: s => ({
@@ -122,24 +122,29 @@ export const useFuelStore = create<FuelState>()(
             settings: s.settings,
          }),
          // v1 had a single vehicle stored in settings and no vehicleId on entries
-         migrate: (persisted: unknown, version) =>
-            version >= 2 ? (persisted as PersistedData) : migrateV1ToV2(persisted),
+         migrate: (persisted: unknown, version) => {
+            const v2 = version >= 2 ? (persisted as PersistedDataV2) : migrateV1ToV2(persisted);
+            return version >= 3 ? (persisted as PersistedData) : migrateV2ToV3(v2);
+         },
       },
    ),
 );
 
-/** The active vehicle (falls back to the first one if the id is stale). */
-export function useActiveVehicle(): Vehicle {
+/** The active vehicle, or null when the user has not added any yet. */
+export function useActiveVehicle(): Vehicle | null {
    const vehicles = useFuelStore(s => s.vehicles);
    const activeId = useFuelStore(s => s.activeVehicleId);
-   return vehicles.find(v => v.id === activeId) ?? vehicles[0] ?? DEFAULT_VEHICLE;
+   return vehicles.find(v => v.id === activeId) ?? vehicles[0] ?? null;
 }
+
+const NO_ENTRIES: FuelEntry[] = [];
 
 /** Fill-ups of the active vehicle only. */
 export function useVehicleEntries(): FuelEntry[] {
    const entries = useFuelStore(s => s.entries);
    const vehicle = useActiveVehicle();
-   return useMemo(() => entries.filter(e => e.vehicleId === vehicle.id), [entries, vehicle.id]);
+   const id = vehicle?.id;
+   return useMemo(() => (id ? entries.filter(e => e.vehicleId === id) : NO_ENTRIES), [entries, id]);
 }
 
 /** Derived values for the active vehicle, recomputed from its entries every time they change. */

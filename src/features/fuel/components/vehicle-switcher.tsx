@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, ScrollView } from 'react-native';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { cn } from '@/src/utils/tailwind';
+import { VehicleAvatar } from './vehicle-avatar';
 import { useFuelStore } from '../store';
 
 /** Horizontal chips to pick the active vehicle. Renders nothing when there is only one vehicle. */
@@ -23,7 +24,8 @@ export function VehicleSwitcher() {
                   accessibilityRole="button"
                   accessibilityState={{ selected: active }}
                   style={{ minHeight: 44 }}
-                  className={cn('justify-center rounded-full border px-4', active ? 'bg-primary border-primary' : 'bg-card border-border')}>
+                  className={cn('flex-row items-center gap-2 rounded-full border py-1 pr-4 pl-1', active ? 'bg-primary border-primary' : 'bg-card border-border')}>
+                  <VehicleAvatar vehicle={v} size={36} />
                   <ThemedText weight="semibold" color={active ? 'inverse' : 'default'} numberOfLines={1}>
                      {v.name}
                   </ThemedText>

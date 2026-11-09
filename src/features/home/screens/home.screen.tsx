@@ -7,6 +7,8 @@ import { Card, ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedButton } from '@/src/components/ui/themed-button';
 import { TabScreen } from '@/src/features/fuel/components/tab-screen';
+import { VehicleAvatar } from '@/src/features/fuel/components/vehicle-avatar';
+import { useOpenFuelForm } from '@/src/features/fuel/hooks';
 import { VehicleSwitcher } from '@/src/features/fuel/components/vehicle-switcher';
 import { StatCard } from '@/src/features/fuel/components/stat-card';
 import { AddFab } from '@/src/features/fuel/components/add-fab';
@@ -21,12 +23,13 @@ export function HomeScreen() {
    const settings = useFuelStore(s => s.settings);
    const vehicle = useActiveVehicle();
    const result = useConsumption();
-   const openForm = () => navigation.navigate('FuelForm');
+   const openFuelForm = useOpenFuelForm();
+   const openForm = () => openFuelForm();
 
    const { summary, lastSegment, sorted } = result;
    const lastEntry = sorted.length ? sorted[sorted.length - 1] : null;
    const alert = computeAlert(result, settings.alertThresholdPercent);
-   const range = estimatedRangeKm(summary.l100, vehicle.tankCapacityLiters);
+   const range = estimatedRangeKm(summary.l100, vehicle?.tankCapacityLiters);
    const dash = t('home.no_data');
 
    // Is the last segment worse (higher) than the average?
@@ -41,12 +44,27 @@ export function HomeScreen() {
    return (
       <TabScreen>
          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 112, gap: 12 }}>
-            <ThemedText variant="h2" weight="bold">
-               {vehicle.name}
-            </ThemedText>
+            {vehicle ? (
+               <ThemedView flex="row" items="center" gap="md" className="bg-transparent">
+                  <VehicleAvatar vehicle={vehicle} size={52} />
+                  <ThemedText variant="h2" weight="bold" numberOfLines={2} className="flex-1">
+                     {vehicle.name}
+                  </ThemedText>
+               </ThemedView>
+            ) : (
+               <ThemedText variant="h2" weight="bold">
+                  {t('home.app_name')}
+               </ThemedText>
+            )}
             <VehicleSwitcher />
 
-            {sorted.length === 0 ? (
+            {!vehicle ? (
+               <Card padding="lg" rounded="xl" gap="md">
+                  <ThemedText variant="h3">{t('home.welcome_title')}</ThemedText>
+                  <ThemedText color="secondary">{t('home.welcome_text')}</ThemedText>
+                  <ThemedButton title={t('home.welcome_cta')} size="lg" fullWidth onPress={() => navigation.navigate('VehicleForm')} />
+               </Card>
+            ) : sorted.length === 0 ? (
                <Card padding="lg" rounded="xl" gap="md">
                   <ThemedText variant="h3">{t('home.empty_title')}</ThemedText>
                   <ThemedText color="secondary">{t('home.empty_text')}</ThemedText>
@@ -122,7 +140,7 @@ export function HomeScreen() {
                </>
             )}
          </ScrollView>
-         {sorted.length > 0 ? <AddFab onPress={openForm} /> : null}
+         {vehicle && sorted.length > 0 ? <AddFab onPress={openForm} /> : null}
       </TabScreen>
    );
 }

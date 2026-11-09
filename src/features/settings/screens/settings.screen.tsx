@@ -12,6 +12,7 @@ import { ThemedText } from '@/src/components/ui/themed-text';
 import { ThemedInput } from '@/src/components/ui/themed-input';
 import { ThemedButton } from '@/src/components/ui/themed-button';
 import { TabScreen } from '@/src/features/fuel/components/tab-screen';
+import { VehicleAvatar } from '@/src/features/fuel/components/vehicle-avatar';
 import { SegmentedControl } from '@/src/features/fuel/components/segmented-control';
 import { useFuelStore } from '@/src/features/fuel/store';
 import { useTheme, type ThemeMode } from '@/src/theme/ThemeProvider';
@@ -71,6 +72,7 @@ export function SettingsScreen() {
    const entries = useFuelStore(s => s.entries);
    const vehicles = useFuelStore(s => s.vehicles);
    const activeVehicleId = useFuelStore(s => s.activeVehicleId);
+   const currentVehicles = vehicles;
    const setActiveVehicle = useFuelStore(s => s.setActiveVehicle);
    const updateSettings = useFuelStore(s => s.updateSettings);
    const replaceAll = useFuelStore(s => s.replaceAll);
@@ -128,9 +130,11 @@ export function SettingsScreen() {
                text: t('common.confirm'),
                style: 'destructive',
                onPress: () => {
+                  // Photos aren't in the backup: keep the ones already on this device for the same vehicle ids
+                  const keepPhoto = (id: string) => currentVehicles.find(v => v.id === id)?.photoUri;
                   replaceAll({
                      entries: parsed.entries,
-                     vehicles: parsed.vehicles,
+                     vehicles: parsed.vehicles.map(v => ({ ...v, photoUri: keepPhoto(v.id) })),
                      activeVehicleId: parsed.activeVehicleId,
                      settings: parsed.settings,
                   });
@@ -183,6 +187,9 @@ export function SettingsScreen() {
 
             <Section icon={Car} title={t('settings.vehicles')} description={t('settings.vehicles_help')}>
                <ThemedView gap="sm" className="bg-transparent">
+                  {vehicles.length === 0 ? (
+                     <ThemedText color="secondary">{t('settings.vehicles_empty')}</ThemedText>
+                  ) : null}
                   {vehicles.map(v => {
                      const active = v.id === activeVehicleId;
                      const count = entries.filter(e => e.vehicleId === v.id).length;
@@ -202,6 +209,7 @@ export function SettingsScreen() {
                                  className={cn('h-6 w-6 items-center justify-center rounded-full border-2', active ? 'bg-primary border-primary' : 'border-border bg-transparent')}>
                                  {active ? <Check size={14} color={inverse} strokeWidth={3} /> : null}
                               </ThemedView>
+                              <VehicleAvatar vehicle={v} size={44} />
                               <ThemedView className="flex-1 bg-transparent">
                                  <ThemedText weight="semibold" numberOfLines={1}>
                                     {v.name}

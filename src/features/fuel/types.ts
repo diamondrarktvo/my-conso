@@ -3,6 +3,8 @@ export interface Vehicle {
    name: string;
    /** undefined until the user fills it in */
    tankCapacityLiters?: number;
+   /** Local file URI of the (optional) photo, stored in the app's document directory */
+   photoUri?: string;
 }
 
 export interface FuelEntry {
@@ -30,14 +32,13 @@ export interface Settings {
    alertThresholdPercent: number;
 }
 
-export const DEFAULT_VEHICLE_ID = 'default';
-export const DEFAULT_VEHICLE_NAME = 'Yamaha Cygnus X 2013';
-
-export const DEFAULT_VEHICLE: Vehicle = {
-   id: DEFAULT_VEHICLE_ID,
-   name: DEFAULT_VEHICLE_NAME,
-   tankCapacityLiters: undefined,
-};
+/**
+ * Id/name of the vehicle that early versions created automatically.
+ * No vehicle is created by default anymore: the user adds their own.
+ * Only used to migrate old data.
+ */
+export const LEGACY_VEHICLE_ID = 'default';
+export const LEGACY_VEHICLE_NAME = 'Yamaha Cygnus X 2013';
 
 export const DEFAULT_SETTINGS: Settings = {
    currency: 'Ar',

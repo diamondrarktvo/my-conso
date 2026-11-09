@@ -31,7 +31,11 @@
       "empty_title": "Suis ta consommation",
       "empty_text": "L'application utilise la méthode « plein à plein » : à chaque plein, remplis toujours jusqu'au même niveau. L'essence ajoutée correspond alors exactement à celle consommée depuis le plein précédent.",
       "empty_steps": "1. Fais un plein complet et note le kilométrage.\n2. Au plein complet suivant, note à nouveau le kilométrage et les litres.\n3. La consommation se calcule toute seule.",
-      "empty_cta": "Ajouter mon premier plein"
+      "empty_cta": "Ajouter mon premier plein",
+      "welcome_title": "Bienvenue sur My Conso",
+      "welcome_text": "Ajoute ton véhicule pour commencer à suivre ta consommation de carburant. Tout reste sur ton téléphone, sans internet.",
+      "welcome_cta": "Ajouter mon véhicule",
+      "app_name": "My Conso"
    },
    "form": {
       "title_new": "Nouveau plein",
@@ -159,7 +163,8 @@
       "preferences_help": "Valables pour tous les véhicules.",
       "appearance_help": "Auto suit le réglage clair/sombre de ton téléphone.",
       "data_help": "Exporter (JSON ou CSV) et restaurer une sauvegarde.",
-      "danger_zone": "Zone sensible"
+      "danger_zone": "Zone sensible",
+      "vehicles_empty": "Aucun véhicule pour le moment."
    },
    "common": {
       "cancel": "Annuler",
@@ -180,8 +185,15 @@
       "delete": "Supprimer ce véhicule",
       "delete_title": "Supprimer {{name}} ?",
       "delete_text": "Ses {{count}} pleins seront supprimés définitivement.",
-      "delete_last": "Impossible de supprimer le dernier véhicule.",
       "saved": "Véhicule enregistré",
-      "deleted": "Véhicule supprimé"
+      "deleted": "Véhicule supprimé",
+      "photo": "Photo (optionnel)",
+      "photo_help": "Pour reconnaître ton véhicule facilement.",
+      "photo_take": "Prendre une photo",
+      "photo_pick": "Choisir dans la galerie",
+      "photo_change": "Changer la photo",
+      "photo_remove": "Retirer la photo",
+      "photo_permission": "Autorise l'accès à l'appareil photo dans les réglages du téléphone.",
+      "photo_error": "Impossible d'ajouter cette photo."
    }
 }

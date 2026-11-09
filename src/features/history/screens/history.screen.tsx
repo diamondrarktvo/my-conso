@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 import { Pressable, SectionList } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { ThemedView } from '@/src/components/ui/themed-view';
 import { ThemedText } from '@/src/components/ui/themed-text';
@@ -12,7 +10,7 @@ import { useConsumption, useFuelStore, useVehicleEntries } from '@/src/features/
 import { entryCost, type EntryRole } from '@/src/lib/consumption';
 import { formatDate, formatKm, formatL100, formatLiters, formatMoney, formatMonthYear, monthKey } from '@/src/lib/format';
 import type { FuelEntry } from '@/src/features/fuel/types';
-import type { RootStackParamList } from '@/src/navigation/types';
+import { useOpenFuelForm } from '@/src/features/fuel/hooks';
 import { cn } from '@/src/utils/tailwind';
 
 const BADGE_KEY: Partial<Record<EntryRole, string>> = {
@@ -43,7 +41,7 @@ interface Section {
 
 export function HistoryScreen() {
    const { t } = useTranslation('fuel');
-   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+   const openFuelForm = useOpenFuelForm();
    const entries = useVehicleEntries();
    const currency = useFuelStore(s => s.settings.currency);
    const { info } = useConsumption();
@@ -65,7 +63,7 @@ export function HistoryScreen() {
       return [...map.values()];
    }, [entries]);
 
-   const openForm = (entryId?: string) => navigation.navigate('FuelForm', entryId ? { entryId } : undefined);
+   const openForm = (entryId?: string) => openFuelForm(entryId);
 
    return (
       <TabScreen>

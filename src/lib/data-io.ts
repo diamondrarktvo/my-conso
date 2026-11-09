@@ -4,7 +4,7 @@
  */
 
 import type { FuelEntry, Settings, Vehicle } from '@/src/features/fuel/types';
-import { DEFAULT_SETTINGS, DEFAULT_VEHICLE_ID, DEFAULT_VEHICLE_NAME } from '@/src/features/fuel/types';
+import { DEFAULT_SETTINGS, LEGACY_VEHICLE_ID, LEGACY_VEHICLE_NAME } from '@/src/features/fuel/types';
 import { entryCost, sortEntries } from './consumption';
 
 export const BACKUP_VERSION = 2;
@@ -14,13 +14,14 @@ export interface Backup {
    version: number;
    exportedAt: string;
    settings: Settings;
-   vehicles: Vehicle[];
-   activeVehicleId: string;
+   /** Photos are device-local files and are not part of the backup */
+   vehicles: Omit<Vehicle, 'photoUri'>[];
+   activeVehicleId: string | null;
    entries: FuelEntry[];
 }
 
 export function toBackupJson(
-   data: { entries: FuelEntry[]; vehicles: Vehicle[]; activeVehicleId: string; settings: Settings },
+   data: { entries: FuelEntry[]; vehicles: Vehicle[]; activeVehicleId: string | null; settings: Settings },
    now: Date = new Date(),
 ): string {
    const backup: Backup = {
@@ -28,7 +29,7 @@ export function toBackupJson(
       version: BACKUP_VERSION,
       exportedAt: now.toISOString(),
       settings: data.settings,
-      vehicles: data.vehicles,
+      vehicles: data.vehicles.map(({ photoUri: _photo, ...v }) => v),
       activeVehicleId: data.activeVehicleId,
       entries: sortEntries(data.entries),
    };
@@ -75,7 +76,7 @@ export function toCsv(entries: FuelEntry[], vehicles: Vehicle[] = []): string {
 }
 
 export type ParseResult =
-   | { ok: true; entries: FuelEntry[]; vehicles: Vehicle[]; activeVehicleId: string; settings: Settings }
+   | { ok: true; entries: FuelEntry[]; vehicles: Vehicle[]; activeVehicleId: string | null; settings: Settings }
    | { ok: false; reason: string };
 
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -102,11 +103,12 @@ export function parseBackupJson(text: string): ParseResult {
       for (const v of raw.vehicles) {
          if (!v || typeof v.id !== 'string' || ids.has(v.id)) return { ok: false, reason: 'invalid_vehicle' };
          ids.add(v.id);
-         vehicles.push({ id: v.id, name: optStr(v.name) ?? DEFAULT_VEHICLE_NAME, tankCapacityLiters: optNum(v.tankCapacityLiters) });
+         vehicles.push({ id: v.id, name: optStr(v.name) ?? LEGACY_VEHICLE_NAME, tankCapacityLiters: optNum(v.tankCapacityLiters) });
       }
    }
-   if (vehicles.length === 0) {
-      vehicles = [{ id: DEFAULT_VEHICLE_ID, name: optStr(s.vehicleName) ?? DEFAULT_VEHICLE_NAME, tankCapacityLiters: optNum(s.tankCapacityLiters) }];
+   // v1 backup (single vehicle described in settings): rebuild it, but only if there is data to attach
+   if (vehicles.length === 0 && (raw.entries.length > 0 || optStr(s.vehicleName))) {
+      vehicles = [{ id: LEGACY_VEHICLE_ID, name: optStr(s.vehicleName) ?? LEGACY_VEHICLE_NAME, tankCapacityLiters: optNum(s.tankCapacityLiters) }];
    }
    const vehicleIds = new Set(vehicles.map(v => v.id));
 
@@ -151,6 +153,6 @@ export function parseBackupJson(text: string): ParseResult {
       alertThresholdPercent:
          isNum(s.alertThresholdPercent) && s.alertThresholdPercent > 0 ? s.alertThresholdPercent : DEFAULT_SETTINGS.alertThresholdPercent,
    };
-   const activeVehicleId = typeof raw.activeVehicleId === 'string' && vehicleIds.has(raw.activeVehicleId) ? raw.activeVehicleId : vehicles[0].id;
+   const activeVehicleId = typeof raw.activeVehicleId === 'string' && vehicleIds.has(raw.activeVehicleId) ? raw.activeVehicleId : (vehicles[0]?.id ?? null);
    return { ok: true, entries, vehicles, activeVehicleId, settings };
 }

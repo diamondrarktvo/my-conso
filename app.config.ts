@@ -81,6 +81,13 @@ export default ({ config }: { config: any }) => {
         "@react-native-community/datetimepicker",
         "expo-sharing",
         [
+          "expo-image-picker",
+          {
+            photosPermission: "My Conso a besoin d'accéder à tes photos pour choisir l'image de ton véhicule.",
+            cameraPermission: "My Conso a besoin de l'appareil photo pour prendre une photo de ton véhicule.",
+          },
+        ],
+        [
           "expo-splash-screen",
           {
             image: `${IMAGES}/splash-icon.png`,

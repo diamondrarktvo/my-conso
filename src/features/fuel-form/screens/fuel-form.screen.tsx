@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,6 +13,8 @@ import { DateTimeField } from '@/src/features/fuel/components/date-time-field';
 import { SegmentedControl } from '@/src/features/fuel/components/segmented-control';
 import { SwitchRow } from '@/src/features/fuel/components/switch-row';
 import { useActiveVehicle, useFuelStore } from '@/src/features/fuel/store';
+import { VehicleAvatar } from '@/src/features/fuel/components/vehicle-avatar';
+import type { Vehicle } from '@/src/features/fuel/types';
 import { previewEntry, sortEntries } from '@/src/lib/consumption';
 import { formatKm, formatKmPerL, formatL100, formatMoney, formatNumber, parseDecimal } from '@/src/lib/format';
 import { round2, validateDraft, type FormDraft } from '@/src/lib/validation';
@@ -30,7 +32,21 @@ function numOrNull(text: string): number | null {
 
 const plain = (n: number, d: number) => formatNumber(n, d).replace(/ /g, '');
 
+/** No vehicle yet → there is nothing to attach a fill-up to: go add one first. */
+function RedirectToVehicleForm() {
+   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+   useEffect(() => {
+      navigation.replace('VehicleForm');
+   }, [navigation]);
+   return null;
+}
+
 export function FuelFormScreen() {
+   const activeVehicle = useActiveVehicle();
+   return activeVehicle ? <FuelFormInner activeVehicle={activeVehicle} /> : <RedirectToVehicleForm />;
+}
+
+function FuelFormInner({ activeVehicle }: { activeVehicle: Vehicle }) {
    const { t } = useTranslation('fuel');
    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
    const route = useRoute<RouteProp<RootStackParamList, 'FuelForm'>>();
@@ -39,7 +55,6 @@ export function FuelFormScreen() {
    const allEntries = useFuelStore(s => s.entries);
    const vehicles = useFuelStore(s => s.vehicles);
    const settings = useFuelStore(s => s.settings);
-   const activeVehicle = useActiveVehicle();
    const addEntry = useFuelStore(s => s.addEntry);
    const updateEntry = useFuelStore(s => s.updateEntry);
    const deleteEntry = useFuelStore(s => s.deleteEntry);
@@ -230,9 +245,12 @@ export function FuelFormScreen() {
                {isEdit ? t('form.title_edit') : t('form.title_new')}
             </ThemedText>
             {vehicles.length > 1 ? (
-               <ThemedText color="secondary" numberOfLines={1} className="flex-1 text-right pr-2">
-                  {vehicle.name}
-               </ThemedText>
+               <ThemedView flex="row" items="center" justify="end" gap="sm" className="flex-1 bg-transparent pr-2">
+                  <ThemedText color="secondary" numberOfLines={1} className="shrink">
+                     {vehicle.name}
+                  </ThemedText>
+                  <VehicleAvatar vehicle={vehicle} size={32} />
+               </ThemedView>
             ) : null}
          </ThemedView>
 

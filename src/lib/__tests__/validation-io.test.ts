@@ -1,7 +1,7 @@
 import { validateDraft, type FormDraft } from '../validation';
 import { parseBackupJson, toBackupJson, toCsv } from '../data-io';
-import { migrateV1ToV2 } from '../migrations';
-import { DEFAULT_SETTINGS, DEFAULT_VEHICLE, type FuelEntry } from '@/src/features/fuel/types';
+import { migrateV1ToV2, migrateV2ToV3 } from '../migrations';
+import { DEFAULT_SETTINGS, LEGACY_VEHICLE_NAME, type FuelEntry } from '@/src/features/fuel/types';
 
 const mk = (id: string, day: number, km: number, liters: number, full = true, vehicleId = 'default'): FuelEntry => ({
    id,
@@ -115,6 +115,16 @@ describe('sauvegarde', () => {
       expect(r.ok && r.entries[0].vehicleId).toBe('default');
       expect(r.ok && r.activeVehicleId).toBe('default');
    });
+   it('sauvegarde sans aucun véhicule ni plein : reste vide', () => {
+      const r = parseBackupJson(toBackupJson({ entries: [], vehicles: [], activeVehicleId: null, settings: DEFAULT_SETTINGS }));
+      expect(r.ok && r.vehicles).toEqual([]);
+      expect(r.ok && r.activeVehicleId).toBeNull();
+   });
+   it('la photo (fichier local) n’est pas exportée', () => {
+      const json = toBackupJson({ entries: [], vehicles: [{ id: 'v', name: 'X', photoUri: 'file:///p.jpg' }], activeVehicleId: 'v', settings: DEFAULT_SETTINGS });
+      expect(json).not.toContain('photoUri');
+      expect(json).not.toContain('file:///');
+   });
    it('rejette un fichier invalide', () => {
       expect(parseBackupJson('pas du json')).toEqual({ ok: false, reason: 'invalid_json' });
       expect(parseBackupJson('{"a":1}')).toEqual({ ok: false, reason: 'invalid_format' });
@@ -147,6 +157,33 @@ describe('migration v1 → v2', () => {
    it('tolère un état vide ou corrompu', () => {
       const m = migrateV1ToV2(undefined);
       expect(m.entries).toEqual([]);
-      expect(m.vehicles[0].name).toBe(DEFAULT_VEHICLE.name);
+      expect(m.vehicles[0].name).toBe(LEGACY_VEHICLE_NAME);
+   });
+});
+
+describe('migration v2 → v3 (plus de véhicule par défaut)', () => {
+   const base = { activeVehicleId: 'default', settings: DEFAULT_SETTINGS };
+   it('supprime le véhicule automatique jamais utilisé', () => {
+      const m = migrateV2ToV3({ ...base, entries: [], vehicles: [{ id: 'default', name: LEGACY_VEHICLE_NAME }] });
+      expect(m.vehicles).toEqual([]);
+      expect(m.activeVehicleId).toBeNull();
+   });
+   it('garde le véhicule s’il a des pleins', () => {
+      const m = migrateV2ToV3({ ...base, entries: [mk('a', 1, 100, 3)], vehicles: [{ id: 'default', name: LEGACY_VEHICLE_NAME }] });
+      expect(m.vehicles).toHaveLength(1);
+      expect(m.activeVehicleId).toBe('default');
+   });
+   it('garde le véhicule s’il a été renommé, a un réservoir ou une photo', () => {
+      for (const v of [
+         { id: 'default', name: 'Ma moto' },
+         { id: 'default', name: LEGACY_VEHICLE_NAME, tankCapacityLiters: 5.5 },
+         { id: 'default', name: LEGACY_VEHICLE_NAME, photoUri: 'file:///p.jpg' },
+      ]) {
+         expect(migrateV2ToV3({ ...base, entries: [], vehicles: [v] }).vehicles).toHaveLength(1);
+      }
+   });
+   it('garde plusieurs véhicules', () => {
+      const m = migrateV2ToV3({ ...base, entries: [], vehicles: [{ id: 'default', name: LEGACY_VEHICLE_NAME }, { id: 'b', name: 'PCX' }] });
+      expect(m.vehicles).toHaveLength(2);
    });
 });
